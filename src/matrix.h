@@ -10,6 +10,12 @@ typedef struct matrix
     int cols;
 
     /**
+     * Matrix data. The exact data structure is chosen by the
+     * format.
+    */
+    void *data;
+
+    /**
      * num of non-zero elements
      */
     int numNonZero;
