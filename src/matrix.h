@@ -23,17 +23,17 @@ typedef struct matrix
     /**
      * returns the value at given coordinates
      */
-    double (*get)(int r, int c);
+    double (*get)(Matrix *self, int r, int c);
 
     /**
      * returns the non-zero value at given position,
      * if the non-zero values were put in a row
     */
-    double (*getNonZero)(int pos);
+    double (*getNonZero)(Matrix *self, int pos);
 
     /**
      * puts a value at given coordinates
      */
-    void (*put)(int r, int c, double val);
+    void (*put)(Matrix *self, int r, int c, double val);
 
 } Matrix;
