@@ -6,7 +6,7 @@
  * Implementations must populate members according
  * to their format.
 */
-typedef struct matrix
+typedef struct Matrix
 {
 
     int rows;
