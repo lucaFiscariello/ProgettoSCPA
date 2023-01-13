@@ -1,3 +1,6 @@
+#ifndef MATRIX_H
+#define MATRIX_H
+
 /**
  * A generic Matrix object.
  * Implementations must populate members according
@@ -27,7 +30,7 @@ typedef struct matrix
 
     /**
      * returns the non-zero value at given position,
-     * if the non-zero values were put in a row
+     * as if the non-zero values were put in a row
     */
     double (*getNonZero)(Matrix *self, int pos);
 
@@ -37,3 +40,5 @@ typedef struct matrix
     void (*put)(Matrix *self, int r, int c, double val);
 
 } Matrix;
+
+#endif // MATRIX_H
