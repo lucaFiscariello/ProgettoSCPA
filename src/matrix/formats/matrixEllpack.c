@@ -61,6 +61,18 @@ double getEllpack(Matrix *self, int r, int c){
 
 }
 
+void printEllpack(Matrix *self){
+
+    // TODO: implementare stampa matrice ellpack su console
+    LOG_UNIMPLEMENTED_CALL();
+}
+
+void getNonZeroEllpack(Matrix *self, int *numZero){
+
+    // TODO: implementare metodo
+    LOG_UNIMPLEMENTED_CALL();
+}
+
 
 /**
  * Costruttore della matrice in formato ellpack
@@ -86,6 +98,8 @@ Matrix* newMatrixEllpack(int cols, int rows) {
     matrix->data = dataEllpack;
     matrix->put = putEllpack;
     matrix->get = getEllpack;
+    matrix->print = printEllpack;
+    matrix->getNonZero = getNonZeroEllpack;
     matrix->cols = cols;
     matrix->rows = rows;
     matrix->numNonZero = 0;

@@ -27,6 +27,15 @@
     } \
 }
 
+/**
+ * Use it to throw an error message signaling that a function is not implemented yet
+ * and return immediately to the caller of the function.
+*/
+#define LOG_UNIMPLEMENTED_CALL() { \
+    logMsg(E, "%s is not implemented yet\n", __func__); \
+    return; \
+}
+
 enum Tag
 {
 
