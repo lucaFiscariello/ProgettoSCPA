@@ -1,3 +1,6 @@
+#ifndef MATRIXELLPACK_H
+#define MATRIXELLPACK_H
+
 #include "matrix/matrix.h"
 
 /**
@@ -32,3 +35,5 @@ typedef struct DataEllpack{
     int* nextInsert ;
 
 }DataEllpack;
+
+#endif // MATRIXELLPACK_H
