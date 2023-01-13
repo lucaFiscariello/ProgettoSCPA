@@ -48,6 +48,14 @@ void putCOO(Matrix *self, int r, int c, double val){
     double *valHolder;
     int *colHolder, *rowHolder;
 
+    // Ingrandiamo la dimensione della matrice se necessario.
+    if (r >= self ->rows){
+        self ->rows = r + 1;
+    }
+    if (c >= self ->cols){
+        self ->cols = c + 1;
+    }
+
     // Scorro tutti gli elementi della matrice cercando la coppia di indici (r,c)
     valHolder = malloc(sizeof(double));
     *valHolder = val;
