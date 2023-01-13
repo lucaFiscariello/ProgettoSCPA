@@ -6,7 +6,7 @@
  * Implementations must populate members according
  * to their format.
 */
-typedef struct Matrix
+typedef struct matrix
 {
 
     int rows;
@@ -26,19 +26,35 @@ typedef struct Matrix
     /**
      * returns the value at given coordinates
      */
-    double (*get)(Matrix *self, int r, int c);
+    double (*get)(struct matrix *self, int r, int c);
 
     /**
      * returns the non-zero value at given position,
      * as if the non-zero values were put in a row
     */
-    double (*getNonZero)(Matrix *self, int pos);
+    double (*getNonZero)(struct matrix *self, int pos);
 
     /**
      * puts a value at given coordinates
      */
-    void (*put)(Matrix *self, int r, int c, double val);
+    void (*put)(struct matrix *self, int r, int c, double val);
+
+    /**
+     * Prints the matrix to screen
+    */
+    void (*print)(struct matrix *self);
 
 } Matrix;
+
+/**
+ * Creates a new Matrix object.
+ * The format is chosen by the implementation.
+*/
+Matrix *newMatrix();
+
+/**
+ * Frees the memory allocated by the matrix.
+*/
+void freeMatrix(Matrix *self);
 
 #endif // MATRIX_H

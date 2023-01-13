@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "header/matrixEllpack.h"
+#include "matrixEllpack.h"
 #include <malloc.h>
-#include "header/logger.h"
+#include "logger/logger.h"
 
 
 /**
@@ -67,7 +67,7 @@ double getEllpack(Matrix *self, int r, int c){
 */
 Matrix* newMatrixEllpack(int cols, int rows) {
 
-    struct Matrix* matrix =( struct Matrix *) malloc( sizeof( struct Matrix ));
+    Matrix* matrix =( Matrix *) malloc( sizeof( Matrix ));
     struct DataEllpack* dataEllpack =( struct DataEllpack *) malloc( sizeof( struct DataEllpack ));
 
     dataEllpack->colsSubMat=1; // Inizializzo a 1 il numero di colonne della matrice sparsa
