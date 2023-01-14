@@ -6,7 +6,7 @@
 /**
  * Costruttore della matrice in formato ellpack
 */
-Matrix* newMatrixEllpack(int cols, int rows);
+Matrix* newMatrixEllpack();
 
 /**
  *  Contiene le strutture dati utili per gestire in memoria una matrice sparsa in formato Ellpack.
@@ -29,11 +29,22 @@ typedef struct DataEllpack{
     int colsSubMat;
 
     /**
+     * Numero di righe che ha la  matrice sparsa.
+    */
+    int rowsSubMat;
+
+    /**
      * Vettore che ha tante componenti quante le righe della matrice sparsa. Serve per capire per ogni riga dove 
      * posso scrivere un nuovo valore.
     */
     int* nextInsert ;
 
 }DataEllpack;
+
+/**
+ * Funzione per deallocare matrice in memoria
+*/
+void freeMatrixEllpack(Matrix *self);
+
 
 #endif // MATRIXELLPACK_H

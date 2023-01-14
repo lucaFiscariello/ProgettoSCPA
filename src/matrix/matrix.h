@@ -1,6 +1,19 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+
+/**
+ * Struttura che impacchetta un elemento non zero di una matrice sparsa.
+*/
+typedef struct notZeroElement
+{
+    int row;
+    int col;
+    double value;
+
+}NotZeroElement;
+
+
 /**
  * A generic Matrix object.
  * Implementations must populate members according
@@ -32,7 +45,7 @@ typedef struct matrix
      * returns the non-zero value at given position,
      * as if the non-zero values were put in a row
     */
-    double (*getNonZero)(struct matrix *self, int pos);
+    NotZeroElement* (*getNonZero)(struct matrix *self, int pos);
 
     /**
      * puts a value at given coordinates
@@ -46,11 +59,13 @@ typedef struct matrix
 
 } Matrix;
 
+
 /**
  * Creates a new Matrix object.
  * The format is chosen by the implementation.
 */
 Matrix *newMatrix();
+
 
 /**
  * Frees the memory allocated by the matrix.

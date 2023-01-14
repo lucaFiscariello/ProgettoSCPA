@@ -32,11 +32,27 @@ double getCOO(Matrix *self, int r, int c){
     return 0;
 }
 
-double getNonZeroCOO(Matrix *self, int pos){
+NotZeroElement* getNonZeroCOO(Matrix *self, int pos){
 
-    // TODO: implement methods
-    logMsg(E, "%s not implemented\n", __func__);
-    return 0;
+    NotZeroElement* nze = calloc(1, sizeof(NotZeroElement));
+
+    Node * row, *col, *element;
+    DataCOO *data = (DataCOO *)self->data;
+
+    for (int i = 0; i < self->numNonZero; i ++){
+        ON_ERROR_LOG(getLL(data ->rows, i, &row), "%s: couldn't get row %d\n", __func__, i);
+        ON_ERROR_LOG(getLL(data ->cols, i, &col), "%s: couldn't get col %d\n", __func__, i);
+        ON_ERROR_LOG(getLL(data ->elements, i, &element), "%s: couldn't get element in position %d\n", __func__, i);
+
+        if (i==pos){
+            nze->value=*(double*)(element->value);
+            nze->col = *(int*)(col->value);
+            nze->row= *(int*)(row->value);
+            return nze ;
+        }
+    }
+
+    return NULL;
 }
 
 void putCOO(Matrix *self, int r, int c, double val){
