@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "matrixEllpack.h"
+#include "matrix/formats/matrixEllpack.h"
 #include <malloc.h>
 #include "logger/logger.h"
 
