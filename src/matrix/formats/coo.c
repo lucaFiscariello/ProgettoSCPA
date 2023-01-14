@@ -1,20 +1,8 @@
-#include "coo.h"
+#include "matrix/formats/coo.h"
 #include "logger/logger.h"
 #include <stdlib.h>
 #include "dataStructures/ll.h"
 #include <stdio.h>
-
-/**
- * The representation of a COO sparse matrix data.
- * Values of same index between lists are of the same matrix element.
-*/
-typedef struct coo_data{
-
-    Node *elements; /** list of non-null matrix elements*/
-    Node *cols;  /** list of col indexes.*/
-    Node *rows; /** list of row indexes*/
-
-} DataCOO;
 
 double getCOO(Matrix *self, int r, int c){
 
