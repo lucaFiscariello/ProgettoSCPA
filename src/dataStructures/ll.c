@@ -70,7 +70,7 @@ int getLL(Node *head, int index, Node **node){
 	Node *current = head;
 	if (index < 0 || index >= lenLL(current))
 	{
-		logMsg(E, "getLL: index %d out of range\n", index);
+		logMsg(LOG_TAG_E, "getLL: index %d out of range\n", index);
 		return 1;
 	}
 	
@@ -109,11 +109,11 @@ int popLL(Node **headAddr, int index, void **destination){
 			free(current);
 
         } else {
-            logMsg(E, "pop: index %d out of range\n", index);
+            logMsg(LOG_TAG_E, "pop: index %d out of range\n", index);
             return 1;
         }
 	} else {
-        logMsg(E, "pop: list is empty\n");
+        logMsg(LOG_TAG_E, "pop: list is empty\n");
         return 1;
 	}
 	return 0;

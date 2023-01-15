@@ -10,10 +10,10 @@ double getCOO(Matrix *self, int r, int c){
     DataCOO *data = (DataCOO *)self->data;
 
     for (int i = 0; i < self->numNonZero; i ++){
-        ON_ERROR_LOG(getLL(data ->rows, i, &row), "%s: couldn't get row %d\n", __func__, i);
-        ON_ERROR_LOG(getLL(data ->cols, i, &col), "%s: couldn't get col %d\n", __func__, i);
+        ON_ERROR_LOG(getLL(data ->rows, i, &row), "couldn't get row %d\n", i);
+        ON_ERROR_LOG(getLL(data ->cols, i, &col), "couldn't get col %d\n", i);
         if (*(int*)(row->value) == r && *(int*)(col->value) == c){
-            ON_ERROR_LOG(getLL(data ->elements, i, &element), "%s: couldn't get element in position %d\n", __func__, i);
+            ON_ERROR_LOG(getLL(data ->elements, i, &element) != 0, "couldn't get element in position %d\n", i);
             return *(double*)(element->value);
         }
     }
@@ -28,9 +28,9 @@ NotZeroElement* getNonZeroCOO(Matrix *self, int pos){
     DataCOO *data = (DataCOO *)self->data;
 
     for (int i = 0; i < self->numNonZero; i ++){
-        ON_ERROR_LOG(getLL(data ->rows, i, &row), "%s: couldn't get row %d\n", __func__, i);
-        ON_ERROR_LOG(getLL(data ->cols, i, &col), "%s: couldn't get col %d\n", __func__, i);
-        ON_ERROR_LOG(getLL(data ->elements, i, &element), "%s: couldn't get element in position %d\n", __func__, i);
+        ON_ERROR_LOG(getLL(data ->rows, i, &row), "couldn't get row %d\n", i);
+        ON_ERROR_LOG(getLL(data ->cols, i, &col), "%s: couldn't get col %d\n", i);
+        ON_ERROR_LOG(getLL(data ->elements, i, &element), "couldn't get element in position %d\n", i);
 
         if (i==pos){
             nze->value=*(double*)(element->value);
@@ -43,7 +43,7 @@ NotZeroElement* getNonZeroCOO(Matrix *self, int pos){
     return NULL;
 }
 
-void putCOO(Matrix *self, int r, int c, double val){
+int putCOO(Matrix *self, int r, int c, double val){
 
     DataCOO *data = (DataCOO *)self->data;
     Node *row, *col, *element;
@@ -65,27 +65,27 @@ void putCOO(Matrix *self, int r, int c, double val){
     *valHolder = val;
     for (int i = 0; i < self ->numNonZero; i ++){
         
-        ON_ERROR_LOG(getLL(data ->rows, i, &row), "%s: couldn't get row %d\n", __func__, i);
-        ON_ERROR_LOG(getLL(data ->cols, i, &col), "%s: couldn't get col %d\n", __func__, i);
+        ON_ERROR_LOG(getLL(data ->rows, i, &row), "couldn't get row %d\n", i);
+        ON_ERROR_LOG(getLL(data ->cols, i, &col), "couldn't get col %d\n", i);
 
         if (*(int*)(row->value) == r && *(int*)(col->value) == c){
             
-            ON_ERROR_LOG(getLL(data ->elements, i, &element), "%s: couldn't get element in position %d\n", __func__, i); 
+            ON_ERROR_LOG(getLL(data ->elements, i, &element) != 0, "couldn't get element in position %d\n", i); 
             
             // la riga e la colonna specificati sono già occupati da un elemento non zero, che andremo
             // a sostituire con il nuovo valore
             if (val != 0){
                 element->value = (char*)valHolder;
-                return;
+                return 0;
             } else {
                 // val è zero, quindi devo eliminare l'elemento e i suoi indici dalle liste
                 free(valHolder);
                 free(row ->value);
                 free(col ->value);
                 free(element ->value);
-                ON_ERROR_LOG(popLL(&(data ->elements), i, NULL), "%s: couldn't remove element %f in position %d\n", __func__, *(double*)(element->value), i);
-                ON_ERROR_LOG(popLL(&(data ->rows), i, NULL), "%s: couldn't remove row %d in position %d\n", __func__, *(int*)(row->value), i);
-                ON_ERROR_LOG(popLL(&(data ->cols), i, NULL), "%s: couldn't remove col %d in position %d\n", __func__, *(int*)(col->value), i);
+                ON_ERROR_LOG(popLL(&(data ->elements), i, NULL), "couldn't remove element %f in position %d\n", *(double*)(element->value), i);
+                ON_ERROR_LOG(popLL(&(data ->rows), i, NULL), "couldn't remove row %d in position %d\n", *(int*)(row->value), i);
+                ON_ERROR_LOG(popLL(&(data ->cols), i, NULL), ": couldn't remove col %d in position %d\n", *(int*)(col->value), i);
                 self ->numNonZero --;
             }
         }
@@ -104,6 +104,8 @@ void putCOO(Matrix *self, int r, int c, double val){
         appendLL(&(data ->cols), colHolder);
         self ->numNonZero ++;        
     }
+
+    return 0;
 }
 
 void printCOO(Matrix *self){
@@ -140,9 +142,9 @@ void freeMatrixCOO(Matrix *self){
     // free all values of nodes
     Node *row, *col, *element;
     for(int i = 0; i < self ->numNonZero; i ++){
-        ON_ERROR_LOG(getLL(data ->rows, i, &row), "%s: couldn't get row %d\n", __func__, i);
-        ON_ERROR_LOG(getLL(data ->cols, i, &col), "%s: couldn't get col %d\n", __func__, i);
-        ON_ERROR_LOG(getLL(data ->elements, i, &element), "%s: couldn't get element in position %d\n", __func__, i);
+        ON_ERROR_LOG(getLL(data ->rows, i, &row), "%s: couldn't get row %d\n", i);
+        ON_ERROR_LOG(getLL(data ->cols, i, &col), "%s: couldn't get col %d\n", i);
+        ON_ERROR_LOG(getLL(data ->elements, i, &element), "%s: couldn't get element in position %d\n", i);
         free(row ->value);
         free(col->value);
         free(element ->value);

@@ -7,7 +7,7 @@
 /**
  * Funzione che permette di salvare un valore in una specifica riga o colonna della matrice.
 */
-void putEllpack(Matrix *self, int r, int c, double val){
+int putEllpack(Matrix *self, int r, int c, double val){
     
     DataEllpack* data = (DataEllpack*)self->data;
 
@@ -53,6 +53,8 @@ void putEllpack(Matrix *self, int r, int c, double val){
     //incremento numeri non zero
     self->numNonZero++;
 
+    return 0;
+
 }
 
 
@@ -86,11 +88,9 @@ double getEllpack(Matrix *self, int r, int c){
 */
 void printEllpack(Matrix *self){
 
-    DataEllpack* data = (DataEllpack*)self->data;
-
     for(int i=0; i<self->numNonZero; i++){
         NotZeroElement* nze = self->getNonZero(self,i);
-        logMsg(I, "Riga:%d , Colonna:%d , Valore:%f\n",nze->row, nze->col, nze->value);
+        logMsg(LOG_TAG_I, "Riga:%d , Colonna:%d , Valore:%f\n",nze->row, nze->col, nze->value);
     }
     
 }

@@ -32,25 +32,28 @@ typedef struct matrix
     void *data;
 
     /**
-     * num of non-zero elements
+     * num of noeh n-zero elements
      */
     int numNonZero;
 
     /**
-     * returns the value at given coordinates
+     * returns the value at given coordinates.
+     * Return NaN if an error occurred.
      */
     double (*get)(struct matrix *self, int r, int c);
 
     /**
      * returns the non-zero value at given position,
-     * as if the non-zero values were put in a row
+     * as if the non-zero values were put in a row.
+     * Return NULL if an error occurred.
     */
     NotZeroElement* (*getNonZero)(struct matrix *self, int pos);
 
     /**
-     * puts a value at given coordinates
+     * puts a value at given coordinates.
+     * Returns non-zero if an error occurred.
      */
-    void (*put)(struct matrix *self, int r, int c, double val);
+    int (*put)(struct matrix *self, int r, int c, double val);
 
     /**
      * Prints the matrix to screen

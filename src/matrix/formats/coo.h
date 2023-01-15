@@ -2,6 +2,7 @@
 #define COO_H
 
 #include "matrix/matrix.h"
+#include "dataStructures/ll.h"
 
 /**
  * The representation of a COO sparse matrix data.
