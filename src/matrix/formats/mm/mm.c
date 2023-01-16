@@ -182,6 +182,12 @@ Matrix *newMatrixMM(char *filename){
     ON_ERROR_LOG_AND_RETURN(!mm_is_sparse(data ->typecode), NULL, "Matrix in file %s is not sparse\n", filename);
     ON_ERROR_LOG_AND_RETURN(!mm_is_real(data ->typecode) && !mm_is_integer(data ->typecode), NULL, "Matrix in file %s has non-real values\n", filename);
 
+    /**
+     * TODO: for now, we handle only general matrices.
+     * We must add support for symmetric and pattern matrices
+    */
+    ON_ERROR_LOG_AND_RETURN(!mm_is_general(data ->typecode), NULL, "Matrix in file %s is not general\n", filename);
+
     // read matrix sizes
     ON_ERROR_LOG_MMIO_AND_RETURN(mm_read_mtx_crd_size(data ->file, &(self ->rows), &(self ->cols), &(self ->numNonZero)), NULL, "Unable to read matrix size from file %s", filename);
     
