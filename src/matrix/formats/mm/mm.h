@@ -38,7 +38,7 @@ char *mmio_strerror(int mm_err);
         int err = isError; \
         if (err){ \
             char *errmsg = mmio_strerror(err); \
-            char *log_mmio_buf = calloc(strlen(msg) + strlen(errmsg) + 2, sizeof(char)); \
+            char *log_mmio_buf = calloc(strlen(msg) + strlen(LOG_MSG_SEP) + strlen(errmsg) + 2, sizeof(char)); \
             memcpy(log_mmio_buf, msg, strlen(msg)); \
             log_mmio_buf = strcat(log_mmio_buf, LOG_MSG_SEP); \
             log_mmio_buf = strcat(log_mmio_buf, errmsg); \
