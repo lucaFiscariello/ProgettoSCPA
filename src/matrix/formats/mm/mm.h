@@ -14,6 +14,7 @@ typedef struct mm_data{
     FILE *file; /** file pointer to the matrix file*/
     char *filename; /** name of the underlying MatrixMarket file*/
     MM_typecode typecode; /** matrix charateristics*/
+    int numValueLines; /** number of lines containing matrix values*/
 
 
 } DataMM;
@@ -48,5 +49,9 @@ char *mmio_strerror(int mm_err);
         } \
     } while(0);
 
+char *objectToString(MM_typecode matcode);
+char *sparseDenseToSpring(MM_typecode matcode);
+char *dataTypeToString(MM_typecode matcode);
+char *storageSchemeToString(MM_typecode matcode);
 
 #endif // MM_H

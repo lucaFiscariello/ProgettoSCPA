@@ -89,20 +89,35 @@ void testMatrixMediatorElltoCoo(){
 
 void testMatrixMM(){
 
-    Matrix *matrix = newMatrixMM("/home/daniele/Scaricati/Trec5/Trec5.mtx");
-    NotZeroElement *nze;
+    Matrix *matrix = newMatrixMM("/run/media/daniele/614F7D537CF390D4/corsi/SCPA/matrici/Trec5/Trec5.mtx");
     matrix->print(matrix);
     logMsg(LOG_TAG_D, "matrix[%d][%d] = %f\n", 1, 1, matrix->get(matrix,1,1));
-    nze = matrix->getNonZero(matrix,0);
-    logMsg(LOG_TAG_D, "first non zero element: %d %d %f\n", nze ->row, nze->col, nze->value);
+    NotZeroElement *nze;
+    for (int i = 0; i < 5; i ++){
+        nze = matrix->getNonZero(matrix,i);
+        logMsg(LOG_TAG_D, "nonZero in position %d =  %d %d %f\n", i, nze->row, nze->col, nze->value);
+    }
     freeMatrixMM(matrix);
+}
+
+void testMMPatternSymmetric(){
+    Matrix *m = newMatrixMM("/run/media/daniele/614F7D537CF390D4/corsi/SCPA/matrici/bcspwr01/bcspwr01.mtx");
+    m->print(m);
+    logMsg(LOG_TAG_D, "matrix[%d][%d] = %f\n", 0, 1, m->get(m,1,1));
+    NotZeroElement *nze;
+    for (int i = 0; i < 5; i ++){
+        nze = m->getNonZero(m,i);
+        logMsg(LOG_TAG_D, "nonZero in position %d =  %d %d %f\n", i, nze->row, nze->col, nze->value);
+    }
+    freeMatrixMM(m);
 }
 
 int main(int argc, char *argv[]){
     
     //testMatrixEllpack();
     //testMatrixCOO();
-    testMatrixMM();
+    //testMatrixMM();
+    //testMMPatternSymmetric();
 
     //testMatrixMediatorCooToEll();
     //testMatrixMediatorElltoCoo();
