@@ -155,14 +155,12 @@ void swap(int *a, int *b){
     *b = tmp;
 }
 
-/** FIXME: elemento non-zero sulla diagonale è ritornato sia per posizioni pari che dispari*/
 NotZeroElement *getNonZeroMM(Matrix *self, int pos){
     
     NotZeroElement *nze;
     DataMM *data = (DataMM *) self ->data;
     int r, c;
     double v;
-    // int seek = isSymmetric(data) ? pos / 2 : pos;
     int line, curPos;
 
     /**
@@ -207,15 +205,6 @@ NotZeroElement *getNonZeroMM(Matrix *self, int pos){
         }
     }
     
-    /*
-    
-    // Discards all lines until we reach the desired position
-    reset(data ->file);
-    ON_ERROR_LOG_AND_RETURN(seekdata(data, seek), NULL, "Couldn't seek data at pos %d\n", pos);
-    
-    // Now we can read the line
-    ON_ERROR_LOG_ERRNO_AND_RETURN(readLine(data, &r, &c, &v), NULL, "Couldn't read line %d from file %s", pos, data ->filename);
-*/
     nze = calloc(1, sizeof(NotZeroElement));
     nze ->row = r - 1;
     nze ->col = c - 1;

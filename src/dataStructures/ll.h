@@ -31,8 +31,6 @@ Node *newNode (void *value);
 	} while (0); \
 
 
-//void printLL (Node *current, char *format);
-
 // frees memory associated with ll
 void destroyLL (Node *current);
 
