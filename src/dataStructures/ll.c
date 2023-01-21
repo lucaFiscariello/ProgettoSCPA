@@ -18,20 +18,6 @@ Node *newNode (void *value){
 
 }
 
-/*
-void printLL(Node *current, char *format){
-
-    char *buffer = calloc(strlen(format) + 3, sizeof(char));
-	while (current != NULL){
-		strcpy(buffer, format);
-		strcat(buffer, ", ");
-		printf(buffer, *(current -> value));
-		current = current -> next;
-	}
-	printf("\n");
-	free(buffer);
-}
-*/
 void destroyLL (Node *current){
 
 	if (current == NULL) return;
