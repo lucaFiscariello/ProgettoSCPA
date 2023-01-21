@@ -1,6 +1,8 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include "logger/logger.h"
+
 
 /**
  * Struttura che impacchetta un elemento non zero di una matrice sparsa.
@@ -74,5 +76,10 @@ Matrix *newMatrix();
  * Frees the memory allocated by the matrix.
 */
 void freeMatrix(Matrix *self);
+
+/**
+ * Colled when a function isn't implemented
+*/
+void unimplementedFunction();
 
 #endif // MATRIX_H

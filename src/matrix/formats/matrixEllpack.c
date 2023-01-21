@@ -36,8 +36,8 @@ int putEllpack(Matrix *self, int r, int c, double val){
 
         //Se ho riempito tutta la riga rialloco le matrici aggiungendo una nuova colonna
         for(int i=0; i < data->rowsSubMat; i++){
-            data->matValues[i] =  realloc(data->matValues[i], sizeof(data->matValues[i]) + sizeof(double));
-            data->matCols[i]   =  realloc(data->matCols[i],   sizeof(data->matCols[i]) + sizeof(int));
+            data->matValues[i] =  realloc(data->matValues[i], sizeof(data->matValues[i])*data->nextInsert[i] + sizeof(double));
+            data->matCols[i]   =  realloc(data->matCols[i],   sizeof(data->matCols[i])*data->nextInsert[i] + sizeof(int));
         }
 
         data->colsSubMat++;

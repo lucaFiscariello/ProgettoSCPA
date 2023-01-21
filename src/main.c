@@ -1,9 +1,11 @@
 #include "logger/logger.h"
 #include "matrix/matrix.h"
 #include "matrix/formats/matrixEllpack.h"
+#include "matrix/formats/multiVector.h"
+#include "product/product.h"
 #include "matrix/formats/coo.h"
 #include "matrix/formats/mm/mm.h"
-#include "mediator/mediator.h"
+#include "mediator/mediator.h"          
 
 
 void testMatrixEllpack(){
@@ -75,10 +77,7 @@ void testMatrixMediatorElltoCoo(){
     Matrix *matrixCoo = newMatrixCOO();
     Matrix *matrixEll = newMatrixEllpack();
 
-    matrixEll->put(matrixEll,1,1,1.0);
-    matrixEll->put(matrixEll,1,2,5.0);
-    matrixEll->put(matrixEll,2,2,2.0);
-    matrixEll->put(matrixEll,3,3,3.0);
+    matrixEll->put(matrixEll,2,2,5.0);
 
     convert(matrixEll,matrixCoo);
     matrixCoo->print(matrixCoo);
@@ -87,9 +86,21 @@ void testMatrixMediatorElltoCoo(){
     freeMatrixEllpack(matrixEll);
 }
 
+void testMatrixMediatorMMtoCOO(){
+
+    Matrix *matrixMM = newMatrixMM("matrixFile/Trec5.mtx");
+    Matrix *matrixCoo = newMatrixCOO();
+
+    convert(matrixMM,matrixCoo);
+    matrixCoo->print(matrixCoo);
+
+    freeMatrixMM(matrixMM);
+    freeMatrixCOO(matrixCoo);
+}
+
 void testMatrixMM(){
 
-    Matrix *matrix = newMatrixMM("/run/media/daniele/614F7D537CF390D4/corsi/SCPA/matrici/Trec5/Trec5.mtx");
+    Matrix *matrix = newMatrixMM("matrixFile/cage4.mtx");
     matrix->print(matrix);
     logMsg(LOG_TAG_D, "matrix[%d][%d] = %f\n", 1, 1, matrix->get(matrix,1,1));
     NotZeroElement *nze;
@@ -101,7 +112,7 @@ void testMatrixMM(){
 }
 
 void testMMPatternSymmetric(){
-    Matrix *m = newMatrixMM("/run/media/daniele/614F7D537CF390D4/corsi/SCPA/matrici/bcspwr01/bcspwr01.mtx");
+    Matrix *m = newMatrixMM("matrixFile/bcspwr01.mtx");
     m->print(m);
     logMsg(LOG_TAG_D, "matrix[%d][%d] = %f\n", 0, 1, m->get(m,1,1));
     NotZeroElement *nze;
@@ -112,15 +123,83 @@ void testMMPatternSymmetric(){
     freeMatrixMM(m);
 }
 
+void testMultiVector(){
+
+    Matrix *multivector = newMultiVector(4,4);
+
+    multivector->put(multivector,1,1,1.0);
+    multivector->put(multivector,1,2,5.0);
+    multivector->put(multivector,2,2,2.0);
+    multivector->put(multivector,3,3,3.0);
+
+    multivector->print(multivector);
+    freeMultiVector(multivector);
+}
+
+void testProduct(){
+
+    Matrix *matrixMM = newMatrixMM("matrixFile/Trec5.mtx");
+    Matrix *matrixCoo = newMatrixCOO();
+    Matrix *multiVector = newMultiVector(matrixMM->rows, matrixMM->cols);
+    double** result;
+
+    //Riempio multivettore
+    for(int i=0; i< matrixMM->rows;i++)
+        for(int j= 0; j< matrixMM->cols; j++)
+            multiVector->put(multiVector,i,j,i+j);
+        
+
+    convert(matrixMM,matrixCoo);
+    result = productMatrixMatrixSerial(matrixCoo,multiVector);
+
+    freeMatrixMM(matrixMM);
+    freeMatrixCOO(matrixCoo);
+    free(result);
+}
+
+void testProductNotMM(){
+
+    Matrix* matrix = newMatrixCOO();
+
+    matrix->put(matrix,1,1,1.0);
+    matrix->put(matrix,2,2,1.0);
+    matrix->put(matrix,3,3,1.0);
+    matrix->put(matrix,4,4,1.0);
+
+    Matrix *multiVector = newMultiVector(matrix->rows, matrix->cols);
+    double** result;
+
+    //Riempio multivettore
+    for(int i=0; i< matrix->rows;i++)
+        for(int j= 0; j< matrix->cols; j++)
+            multiVector->put(multiVector,i,j,i+j);
+
+    result = productMatrixMatrixSerial(matrix,multiVector);
+
+    //Stampo risultato
+    for(int i=0; i< matrix->rows;i++)
+        for(int j= 0; j< matrix->cols; j++)
+            logMsg(LOG_TAG_D, "result[%d][%d]= %f\n", i, j, result[i][j]);
+
+
+    freeMatrixCOO(matrix);
+    free(result);
+}
+
 int main(int argc, char *argv[]){
     
     //testMatrixEllpack();
     //testMatrixCOO();
     //testMatrixMM();
-    //testMMPatternSymmetric();
+    //testMultiVector();
 
+    //testMMPatternSymmetric();
     //testMatrixMediatorCooToEll();
     //testMatrixMediatorElltoCoo();
+    //testMatrixMediatorMMtoCOO();
+
+    testProductNotMM();
+    testProduct(); //Versione con BUG
 
     return 0;
 }
