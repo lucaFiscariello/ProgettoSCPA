@@ -14,7 +14,7 @@ int putEllpack(Matrix *self, int r, int c, double val){
     //Controllo se ho abbastanza righe nella matrice
     if(data->rowsSubMat <= r){
         
-        //Se non ho abbastanza righe rialloco la matrice aggiungendo il numero di matrici necesssarie
+        //Se non ho abbastanza righe rialloco la matrice aggiungendo il numero di righe necesssarie
         data->matValues  = realloc(data->matValues, sizeof(double*)*(r+1));
         data->matCols    = realloc(data->matCols,   sizeof(int*)*(r+1));
         data->nextInsert = realloc(data->nextInsert,sizeof(int)*(r+1));
@@ -25,7 +25,7 @@ int putEllpack(Matrix *self, int r, int c, double val){
             data->matCols[k]   =  calloc(data->colsSubMat,sizeof(int));
         }
 
-        data->rowsSubMat++;
+        data->rowsSubMat=r+1;
         self->rows = data->rowsSubMat;
 
     }
@@ -34,13 +34,15 @@ int putEllpack(Matrix *self, int r, int c, double val){
     //Controllo se ho spazio nella riga in cui voglio scrivere un nuovo valore.
     if(data->nextInsert[r] == data->colsSubMat){
 
+        data->colsSubMat++;
+
         //Se ho riempito tutta la riga rialloco le matrici aggiungendo una nuova colonna
         for(int i=0; i < data->rowsSubMat; i++){
-            data->matValues[i] =  realloc(data->matValues[i], sizeof(data->matValues[i])*data->nextInsert[i] + sizeof(double));
-            data->matCols[i]   =  realloc(data->matCols[i],   sizeof(data->matCols[i])*data->nextInsert[i] + sizeof(int));
+            data->matValues[i] =  realloc(data->matValues[i], sizeof(double)*(data->colsSubMat));
+            data->matCols[i]   =  realloc(data->matCols[i],   sizeof(int)*(data->colsSubMat));
         }
 
-        data->colsSubMat++;
+        
     }
 
     //Salvo il valore modificando opportunamente le due matrici
