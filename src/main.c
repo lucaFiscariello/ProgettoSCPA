@@ -195,7 +195,7 @@ void testProductCoo(){
 
     Matrix *matrixMM = newMatrixMM("matrixFile/Trec5.mtx");
     Matrix *matrixCoo = newMatrixCOO();
-    Matrix *multiVector = newMultiVector(matrixMM->rows, matrixMM->cols);
+    Matrix *multiVector = newMultiVector(matrixMM->cols,matrixMM->rows );
     double** result;
 
     //Riempio multivettore
@@ -207,6 +207,11 @@ void testProductCoo(){
     convert(matrixMM,matrixCoo);
     result = productMatrixMatrixSerial(matrixCoo,multiVector);
 
+    //Stampo risultato
+    for(int i=0; i< matrixMM->rows;i++)
+        for(int j= 0; j< multiVector->cols; j++)
+            logMsg(LOG_TAG_D, "result[%d][%d]= %f\n", i, j, result[i][j]);
+
     freeMatrixMM(matrixMM);
     freeMatrixCOO(matrixCoo);
     free(result);
@@ -214,9 +219,9 @@ void testProductCoo(){
 
 void testProductEllpack(){
 
-    Matrix *matrixMM = newMatrixMM("matrixFile/bcspwr01.mtx");
+    Matrix *matrixMM = newMatrixMM("matrixFile/Trec5.mtx");
     Matrix *matrixEllpack = newMatrixEllpack();
-    Matrix *multiVector = newMultiVector(matrixMM->rows, matrixMM->cols);
+    Matrix *multiVector = newMultiVector( matrixMM->cols,matrixMM->rows);
     double** result;
 
     //Riempio multivettore
@@ -231,7 +236,7 @@ void testProductEllpack(){
     matrixEllpack->print(matrixEllpack);
 
     //Stampo risultato
-    for(int i=0; i< multiVector->rows;i++)
+    for(int i=0; i< matrixMM->rows;i++)
         for(int j= 0; j< multiVector->cols; j++)
             logMsg(LOG_TAG_D, "result[%d][%d]= %f\n", i, j, result[i][j]);
 

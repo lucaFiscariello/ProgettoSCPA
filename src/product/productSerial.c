@@ -25,7 +25,7 @@ double** productMatrixMatrixSerial(Matrix* matrix1, Matrix* matrix2){
              * Sommo questo risultato parziale nella matrice risultato. La posizione in cui sommare questo risultato parziale
              * è definita dalla riga dell'elemento della prima matrice e dalla colonna del valore della seconda matrice.
              */
-            result[nze->row][j] += nze->value * matrix2->get(matrix2,nze->row,j);
+            result[nze->row][j] += nze->value * matrix2->get(matrix2,nze->col,j);
         }
     }
 
