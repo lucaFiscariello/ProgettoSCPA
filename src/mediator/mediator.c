@@ -8,7 +8,7 @@ void convert(Matrix *from, Matrix *to){
     NotZeroElement* nze;
 
     //Verifico se il metodo che restituisce un non zero è implementato
-    if(from->getNonZero != unimplementedFunction){
+    if(from->getNonZero != NULL){
 
         //Scorro gli elementi non zero della matrice "from" e li memorizzo in "to"
         for(int i =0; i<from->numNonZero ; i++){        
