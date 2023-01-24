@@ -1,20 +1,15 @@
 #include "matrix/formats/coo.h"
 #include "logger/logger.h"
 #include <stdlib.h>
-#include "dataStructures/ll.h"
 #include <stdio.h>
 
 double getCOO(Matrix *self, int r, int c){
 
-    Node * row, *col, *element;
     DataCOO *data = (DataCOO *)self->data;
 
     for (int i = 0; i < self->numNonZero; i ++){
-        ON_ERROR_LOG(getLL(data ->rows, i, &row), "couldn't get row %d\n", i);
-        ON_ERROR_LOG(getLL(data ->cols, i, &col), "couldn't get col %d\n", i);
-        if (*(int*)(row->value) == r && *(int*)(col->value) == c){
-            ON_ERROR_LOG(getLL(data ->elements, i, &element) != 0, "couldn't get element in position %d\n", i);
-            return *(double*)(element->value);
+        if (data ->rows[i] == r && data ->cols[i] == c){
+            return data ->elements[i];
         }
     }
     return 0;
@@ -22,36 +17,23 @@ double getCOO(Matrix *self, int r, int c){
 
 NotZeroElement* getNonZeroCOO(Matrix *self, int pos){
 
-    NotZeroElement* nze = calloc(1, sizeof(NotZeroElement));
-
-    Node * row, *col, *element;
-    DataCOO *data = (DataCOO *)self->data;
-
-    for (int i = 0; i < self->numNonZero; i ++){
-        ON_ERROR_LOG(getLL(data ->rows, i, &row), "couldn't get row %d\n", i);
-        ON_ERROR_LOG(getLL(data ->cols, i, &col), "%s: couldn't get col %d\n", i);
-        ON_ERROR_LOG(getLL(data ->elements, i, &element), "couldn't get element in position %d\n", i);
-
-        if (i==pos){
-            nze->value=*(double*)(element->value);
-            nze->col = *(int*)(col->value);
-            nze->row= *(int*)(row->value);
-            return nze ;
-        }
-    }
-
-    return NULL;
+    NotZeroElement* nze;
+    DataCOO *data = (DataCOO *)self->data;    
+    
+    ON_ERROR_LOG_AND_RETURN((pos < 0 || pos >= self ->numNonZero), NULL, "pos %d is out of bounds\n", pos);
+    
+    nze = calloc(1, sizeof(NotZeroElement));
+    nze ->row = data ->rows[pos];
+    nze ->col = data ->cols[pos];
+    nze ->value = data ->elements[pos];
+    
+    return nze;
 }
 
 int putCOO(Matrix *self, int r, int c, double val){
 
     DataCOO *data = (DataCOO *)self->data;
-    Node *row, *col, *element;
     
-    // holders for values to be stored in linked lists
-    double *valHolder;
-    int *colHolder, *rowHolder;
-
     // Ingrandiamo la dimensione della matrice se necessario.
     if (r >= self ->rows){
         self ->rows = r + 1;
@@ -61,31 +43,33 @@ int putCOO(Matrix *self, int r, int c, double val){
     }
 
     // Scorro tutti gli elementi della matrice cercando la coppia di indici (r,c)
-    valHolder = malloc(sizeof(double));
-    *valHolder = val;
     for (int i = 0; i < self ->numNonZero; i ++){
         
-        ON_ERROR_LOG(getLL(data ->rows, i, &row), "couldn't get row %d\n", i);
-        ON_ERROR_LOG(getLL(data ->cols, i, &col), "couldn't get col %d\n", i);
-
-        if (*(int*)(row->value) == r && *(int*)(col->value) == c){
-            
-            ON_ERROR_LOG(getLL(data ->elements, i, &element) != 0, "couldn't get element in position %d\n", i); 
-            
+        if (data ->rows[i] == r && data ->cols[i] == c){
+                        
             // la riga e la colonna specificati sono già occupati da un elemento non zero, che andremo
             // a sostituire con il nuovo valore
             if (val != 0){
-                element->value = (char*)valHolder;
+                data ->elements[i] = val;
                 return 0;
             } else {
-                // val è zero, quindi devo eliminare l'elemento e i suoi indici dalle liste
-                free(valHolder);
-                free(row ->value);
-                free(col ->value);
-                free(element ->value);
-                ON_ERROR_LOG(popLL(&(data ->elements), i, NULL), "couldn't remove element %f in position %d\n", *(double*)(element->value), i);
-                ON_ERROR_LOG(popLL(&(data ->rows), i, NULL), "couldn't remove row %d in position %d\n", *(int*)(row->value), i);
-                ON_ERROR_LOG(popLL(&(data ->cols), i, NULL), ": couldn't remove col %d in position %d\n", *(int*)(col->value), i);
+                // val è zero. Per mantenere la lista senza elementi nulli, prendo l'elemento
+                // non-zero alla fine dell'array e lo metto al suo posto, aggiornando gli indici.
+                if (self ->numNonZero - 1 > 0){
+                    data ->elements[i] = data ->elements[self ->numNonZero - 1];
+                    data ->rows[i] = data ->rows[self ->numNonZero - 1];
+                    data ->cols[i] = data ->cols[self ->numNonZero - 1];
+                } else {
+                    // era rimasto un solo elemento non-zero, la sua eliminazione
+                    // comporta il reset della capacità degli array
+                    free(data ->elements);
+                    free(data ->rows);
+                    free(data ->cols);
+                    data ->elements = NULL;
+                    data ->rows = NULL;
+                    data ->cols = NULL;
+                    data ->capacity = 0;
+                }
                 self ->numNonZero --;
             }
         }
@@ -93,16 +77,19 @@ int putCOO(Matrix *self, int r, int c, double val){
 
     // Devo aggiungere elemento non-zero poiché non è stato trovato tra quelli già
     // presenti nella matrice
-
     if (val != 0){
-        rowHolder = malloc(sizeof(int));
-        *rowHolder = r;
-        colHolder = malloc(sizeof(int));
-        *colHolder = c;
-        appendLL(&(data ->elements), valHolder);
-        appendLL(&(data ->rows), rowHolder);
-        appendLL(&(data ->cols), colHolder);
-        self ->numNonZero ++;        
+        
+        // gonfiamo arrays se non c'è spazio per l'elemento
+        if (self ->numNonZero + 1 > data ->capacity){
+            data ->elements = reallocarray(data ->elements, data ->capacity + 1, sizeof(double));
+            data ->rows = reallocarray(data ->rows, data ->capacity + 1, sizeof(int));
+            data ->cols = reallocarray(data ->cols, data ->capacity + 1, sizeof(int));
+            data ->capacity ++;
+        }
+        data ->elements[self ->numNonZero] = val;
+        data ->rows[self ->numNonZero] = r;
+        data ->cols[self ->numNonZero] = c;
+        self ->numNonZero ++;  
     }
 
     return 0;
@@ -110,12 +97,13 @@ int putCOO(Matrix *self, int r, int c, double val){
 
 void printCOO(Matrix *self){
 
-    printf("elements: ");
-    printLL(((DataCOO *)self->data)->elements, "%f", double);
-    printf("rows: ");
-    printLL(((DataCOO *)self->data)->rows, "%d", int);
-    printf("cols: ");
-    printLL(((DataCOO *)self->data)->cols, "%d", int);
+    DataCOO *data = (DataCOO *)self->data;
+    
+    printf("%-6s, %-6s, %-6s\n", "row", "col", "value");
+    for (int i = 0; i < self ->numNonZero; i++)
+    {
+        printf("%-6d, %-6d, %-6.6f\n", data ->rows[i], data ->cols[i], data ->elements[i]);
+    }
 }
 
 Matrix *newMatrixCOO(){
@@ -138,24 +126,11 @@ Matrix *newMatrixCOO(){
 void freeMatrixCOO(Matrix *self){
     
     DataCOO *data = (DataCOO *)self->data;
-    
-    // free all values of nodes
-    Node *row, *col, *element;
-    for(int i = 0; i < self ->numNonZero; i ++){
-        ON_ERROR_LOG(getLL(data ->rows, i, &row), "%s: couldn't get row %d\n", i);
-        ON_ERROR_LOG(getLL(data ->cols, i, &col), "%s: couldn't get col %d\n", i);
-        ON_ERROR_LOG(getLL(data ->elements, i, &element), "%s: couldn't get element in position %d\n", i);
-        free(row ->value);
-        free(col->value);
-        free(element ->value);
-    }
-
-    // destroy lists
-    destroyLL(data ->rows);
-    destroyLL(data ->cols);
-    destroyLL(data ->elements);
 
     // free data
+    free(data ->elements);
+    free(data ->rows);
+    free(data ->cols);
     free(data);
 
     // free matrix

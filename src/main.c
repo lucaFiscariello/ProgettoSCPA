@@ -255,7 +255,7 @@ int main(int argc, char *argv[]){
     //testMatrixEllpack();
     //testMatrixCOO();
     //testMatrixMM();
-    testMultiVector();
+    //testMultiVector();
 
     //testMMPatternSymmetric();
     //testMatrixMediatorCooToEll();
@@ -264,7 +264,7 @@ int main(int argc, char *argv[]){
     //testMatrixMediatorMMtoEllpack();
 
     //testProductNotMM();
-    //testProductCoo(); //Versione con BUG
+    testProductCoo();
     //testProductEllpack();
 
     return 0;

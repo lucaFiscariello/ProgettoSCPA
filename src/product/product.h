@@ -57,6 +57,6 @@ typedef struct sample{
  * @param sample Dove devono essere scritti i dati di misurazione delle prestazioni
  * @return -1 se c'è stato un errore, 0 altrimenti 
  */
-int productMatrixMatrixSerial(Matrix *matrix1, Matrix *matrix2, Matrix *mResult, Sample *sample);
+//int productMatrixMatrixSerial(Matrix *matrix1, Matrix *matrix2, Matrix *mResult, Sample *sample);
 
 #endif
