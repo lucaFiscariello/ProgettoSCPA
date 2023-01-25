@@ -9,6 +9,9 @@
 */
 int putEllpack(Matrix *self, int r, int c, double val){
     
+    if(val == 0)
+        return -1;
+        
     DataEllpack* data = (DataEllpack*)self->data;
 
     //Controllo se ho abbastanza righe nella matrice

@@ -13,16 +13,11 @@ void testMatrixEllpack(){
     
     Matrix* matrix = newMatrixEllpack();
 
-    matrix->put(matrix,1,2,5.0);
-    matrix->put(matrix,2,2,2.0);
-    matrix->put(matrix,3,3,3.0);
-    matrix->put(matrix,5,8,3.0);
-    matrix->put(matrix,5,9,3.0);
-    matrix->put(matrix,5,10,3.0);
-    matrix->put(matrix,6,10,3.0);
-    matrix->put(matrix,6,11,3.0);
-    matrix->put(matrix,6,13,3.0);
-    matrix->put(matrix,7,10,3.0);
+     for(int i=0;i<9;i++)
+        for(int j=0;j<9;j++){
+            matrix->put(matrix,i,j,i+j);
+        }
+
 
     logMsg(LOG_TAG_I, "Letto il valore: %f\n",matrix->get(matrix,2,2));
 
@@ -162,41 +157,44 @@ void testMatrixMediatorMMtoEllpack(){
 
 /*************************************** TEST PRODOTTI ****************************************************/
 
-void testProductNotMM(){
+void testProductEllpack(){
 
-    Matrix* matrix = newMatrixCOO();
-
-    matrix->put(matrix,1,1,1.0);
-    matrix->put(matrix,2,2,1.0);
-    matrix->put(matrix,3,3,1.0);
-    matrix->put(matrix,4,4,1.0);
-
-    Matrix *multiVector = newMultiVector(matrix->rows, matrix->cols);
-    double** result;
+    Matrix *matrixMM = newMatrixMM("matrixFile/Trec5.mtx");
+    Matrix *matrixEllpack = newMatrixEllpack();
+    Matrix *multiVector = newMultiVector( matrixMM->cols,matrixMM->rows);
+    Matrix *result= newMultiVector(matrixMM->cols,matrixMM->rows);
+    Sample *sample = calloc(1,sizeof(Sample));
 
     //Riempio multivettore
-    for(int i=0; i< matrix->rows;i++)
-        for(int j= 0; j< matrix->cols; j++)
+    for(int i=0; i< multiVector->cols;i++)
+        for(int j= 0; j< multiVector->rows; j++)
             multiVector->put(multiVector,i,j,i+j);
 
-    result = productMatrixMatrixSerial(matrix,multiVector);
+    convert(matrixMM,matrixEllpack);
+    productMatrixMatrixSerial(matrixEllpack,multiVector,result,sample);
 
     //Stampo risultato
-    for(int i=0; i< matrix->rows;i++)
-        for(int j= 0; j< matrix->cols; j++)
-            logMsg(LOG_TAG_D, "result[%d][%d]= %f\n", i, j, result[i][j]);
+    multiVector->print(multiVector);
+    matrixEllpack->print(matrixEllpack);
+    result->print(result);
 
+    //verifico se sample memorizza info        
+    logMsg(LOG_TAG_D, "Nome funzione eseguita: %s\n", sample->productName);
+    logMsg(LOG_TAG_D, "GigaFlop: %f\n", sample->gflops);
 
-    freeMatrixCOO(matrix);
-    free(result);
+    freeMatrixMM(matrixMM);
+    freeMatrixEllpack(matrixEllpack);
+    freeMatrixEllpack(result);
 }
+
 
 void testProductCoo(){
 
     Matrix *matrixMM = newMatrixMM("matrixFile/Trec5.mtx");
     Matrix *matrixCoo = newMatrixCOO();
     Matrix *multiVector = newMultiVector(matrixMM->cols,matrixMM->rows );
-    double** result;
+    Matrix *result= newMultiVector(matrixMM->cols,matrixMM->rows );
+    Sample *sample = calloc(1,sizeof(Sample));
 
     //Riempio multivettore
     for(int i=0; i< matrixMM->rows;i++)
@@ -205,46 +203,16 @@ void testProductCoo(){
         
 
     convert(matrixMM,matrixCoo);
-    result = productMatrixMatrixSerial(matrixCoo,multiVector);
+    productMatrixMatrixSerial(matrixCoo,multiVector,result,sample);
 
     //Stampo risultato
-    for(int i=0; i< matrixMM->rows;i++)
-        for(int j= 0; j< multiVector->cols; j++)
-            logMsg(LOG_TAG_D, "result[%d][%d]= %f\n", i, j, result[i][j]);
+    result->print(result);
 
     freeMatrixMM(matrixMM);
     freeMatrixCOO(matrixCoo);
-    free(result);
+    freeMatrixEllpack(result);
 }
 
-void testProductEllpack(){
-
-    Matrix *matrixMM = newMatrixMM("matrixFile/Trec5.mtx");
-    Matrix *matrixEllpack = newMatrixEllpack();
-    Matrix *multiVector = newMultiVector( matrixMM->cols,matrixMM->rows);
-    double** result;
-
-    //Riempio multivettore
-    for(int i=0; i< multiVector->rows;i++)
-        for(int j= 0; j< multiVector->cols; j++)
-            multiVector->put(multiVector,i,j,i+j);
-
-    convert(matrixMM,matrixEllpack);
-    result = productMatrixMatrixSerial(matrixEllpack,multiVector);
-
-    multiVector->print(multiVector);
-    matrixEllpack->print(matrixEllpack);
-
-    //Stampo risultato
-    for(int i=0; i< matrixMM->rows;i++)
-        for(int j= 0; j< multiVector->cols; j++)
-            logMsg(LOG_TAG_D, "result[%d][%d]= %f\n", i, j, result[i][j]);
-
-
-    freeMatrixMM(matrixMM);
-    freeMatrixEllpack(matrixEllpack);
-    free(result);
-}
 
 
 /*************************************** MAIN ****************************************************/
@@ -263,9 +231,8 @@ int main(int argc, char *argv[]){
     //testMatrixMediatorMMtoCOO();
     //testMatrixMediatorMMtoEllpack();
 
-    //testProductNotMM();
-    testProductCoo();
-    //testProductEllpack();
+    //testProductCoo();
+    testProductEllpack();
 
     return 0;
 }
