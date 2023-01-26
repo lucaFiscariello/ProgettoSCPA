@@ -5,7 +5,7 @@
 #include "product/product.h"
 #include "matrix/formats/coo.h"
 #include "matrix/formats/mm/mm.h"
-#include "mediator/mediator.h"          
+#include "mediator/mediator.h"
 
 /*************************************** TEST FORMATI MATRICE ****************************************************/
 
@@ -35,7 +35,6 @@ void testMatrixEllpack(){
     freeMatrixEllpack(matrix);
     
 }
-
 void testMatrixCOO(){
 
     Matrix *matrix = newMatrixCOO();
@@ -96,7 +95,6 @@ void testMMPatternSymmetric(){
     freeMatrixMM(m);
 }
 
-/*************************************** TEST CONVERSIONI ****************************************************/
 
 void testMatrixMediatorCooToEll(){
 
@@ -155,7 +153,6 @@ void testMatrixMediatorMMtoEllpack(){
 }
 
 
-/*************************************** TEST PRODOTTI ****************************************************/
 
 void testProductEllpack(){
 
@@ -163,7 +160,7 @@ void testProductEllpack(){
     Matrix *matrixEllpack = newMatrixEllpack();
     Matrix *multiVector = newMultiVector( matrixMM->cols,matrixMM->rows);
     Matrix *result= newMultiVector(matrixMM->cols,matrixMM->rows);
-    Sample *sample = calloc(1,sizeof(Sample));
+    Sample *sample = (Sample *)calloc(1,sizeof(Sample));
 
     //Riempio multivettore
     for(int i=0; i< multiVector->cols;i++)
@@ -194,7 +191,7 @@ void testProductCoo(){
     Matrix *matrixCoo = newMatrixCOO();
     Matrix *multiVector = newMultiVector(matrixMM->cols,matrixMM->rows );
     Matrix *result= newMultiVector(matrixMM->cols,matrixMM->rows );
-    Sample *sample = calloc(1,sizeof(Sample));
+    Sample *sample = (Sample*) calloc(1,sizeof(Sample));
 
     //Riempio multivettore
     for(int i=0; i< matrixMM->rows;i++)
@@ -211,6 +208,16 @@ void testProductCoo(){
     freeMatrixMM(matrixMM);
     freeMatrixCOO(matrixCoo);
     freeMatrixEllpack(result);
+}
+__global__ void cuda_hello(){
+    printf("Hello World from GPU! %d\n", threadIdx.x*gridDim.x);
+}
+
+void helloWorldCUDA(){
+    
+    printf("Hello World from CPU!\n");
+    cuda_hello<<<10,10>>>();
+    cudaDeviceSynchronize(); 
 }
 
 
@@ -232,7 +239,8 @@ int main(int argc, char *argv[]){
     //testMatrixMediatorMMtoEllpack();
 
     //testProductCoo();
-    testProductEllpack();
+    //testProductEllpack();
+    helloWorldCUDA();
 
     return 0;
 }
