@@ -46,7 +46,6 @@ int productMatrixMatrixSerial(Matrix* matrix1, Matrix* matrix2,Matrix *mResult, 
     //Salvo matrice risultato in un formato di matrice dato in input
     for(int i=0;i<finalRows;i++)
         for(int j=0;j<finalCols;j++){
-            logMsg(LOG_TAG_D, "ci sono %d %d %f\n",i,j,result[i][j]);
             mResult->put(mResult,i,j,result[i][j]);
         }
 

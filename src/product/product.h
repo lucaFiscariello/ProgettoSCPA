@@ -59,4 +59,17 @@ typedef struct sample{
  */
 int productMatrixMatrixSerial(Matrix *matrix1, Matrix *matrix2, Matrix *mResult, Sample *sample);
 
+/**
+ * @brief
+ * Funzione che implementa il prodotto matriciale in modo parallelo sulla GPU.
+ * In particolare La funzione accetta in ingresso una matrice in formato Ellpack e un multivettore.
+ * 
+ * @param matrix1
+ * @param matrix2 
+ * @param mResult Matrice in cui verrà scritto il risultato del prodotto matriciale
+ * @param sample Dove devono essere scritti i dati di misurazione delle prestazioni
+ * @return -1 se c'è stato un errore, 0 altrimenti 
+*/
+int productMatrixMatrixParallelEllpack(Matrix *matrix1, Matrix *matrix2, Matrix *mResult, Sample *sample);
+
 #endif

@@ -38,6 +38,7 @@ int putEllpack(Matrix *self, int r, int c, double val){
     if(data->nextInsert[r] == data->colsSubMat){
 
         data->colsSubMat++;
+        self->cols = data->colsSubMat;
 
         //Se ho riempito tutta la riga rialloco le matrici aggiungendo una nuova colonna
         for(int i=0; i < data->rowsSubMat; i++){
