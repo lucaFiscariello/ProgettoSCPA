@@ -2,7 +2,7 @@
 #define MATRIX_H
 
 #include "logger/logger.h"
-
+#include <stdbool.h>
 
 /**
  * Struttura che impacchetta un elemento non zero di una matrice sparsa.
@@ -78,8 +78,9 @@ Matrix *newMatrix();
 void freeMatrix(Matrix *self);
 
 /**
- * Colled when a function isn't implemented
+ * Checks if given indexes are out of matrix bounds.
 */
-void unimplementedFunction();
+bool outOfBounds(Matrix *self, int r, int c);
+
 
 #endif // MATRIX_H

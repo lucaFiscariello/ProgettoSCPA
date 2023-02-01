@@ -18,3 +18,12 @@ void convert(Matrix *from, Matrix *to){
         
     }
 }
+
+void convert_dense_too(Matrix *from, Matrix *to){
+
+    for (int r = 0; r < from->rows; r++){
+        for (int c = 0; c < from->cols; c++){
+            to->put(to, r, c, from->get(from, r, c));
+        }
+    }
+}
