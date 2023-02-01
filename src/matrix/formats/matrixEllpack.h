@@ -24,12 +24,14 @@ typedef struct DataEllpack{
     int** matCols;
 
     /**
-     * Numero di colonne che ha la  matrice sparsa.
+     * Numero di colonne delle matrici dei coefficienti/colonne. Corrisponde al max numero
+     * di non zeri in una riga.
     */
     int colsSubMat;
 
     /**
-     * Numero di righe che ha la  matrice sparsa.
+     * Numero di righe delle matrici dei coefficienti/colonne. Corrisponde al numero di righe
+     * della matrice sparsa che presenta almeno un elemento nonzero.
     */
     int rowsSubMat;
 

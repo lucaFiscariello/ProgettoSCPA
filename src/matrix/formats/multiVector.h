@@ -4,7 +4,8 @@
 #include "matrix/matrix.h"
 
 /**
- * Costruttore del multivettore
+ * Costruttore del multivettore.
+ * Nel campo data della matrice viene salvata una matrice di double (double **).
 */
 Matrix* newMultiVector(int rows, int cols);
 

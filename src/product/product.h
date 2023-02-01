@@ -72,4 +72,16 @@ int productMatrixMatrixSerial(Matrix *matrix1, Matrix *matrix2, Matrix *mResult,
 */
 int productMatrixMatrixParallelEllpack(Matrix *matrix1, Matrix *matrix2, Matrix *mResult, Sample *sample);
 
+/**
+ * Implementation of the product of a sparse matrix in ELLPACK format and a multivector
+ * leveraging the parallelism of the multi-core CPU using OpenMP.
+ * 
+ * @param matrix1
+ * @param matrix2 
+ * @param mResult Matrice in cui verrà scritto il risultato del prodotto matriciale
+ * @param sample Dove devono essere scritti i dati di misurazione delle prestazioni
+ * @return -1 se c'è stato un errore, 0 altrimenti 
+*/
+int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matrix *mResult, Sample *sample);
+
 #endif
