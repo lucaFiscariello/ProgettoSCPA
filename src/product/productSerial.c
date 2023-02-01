@@ -53,10 +53,12 @@ int productMatrixMatrixSerial(Matrix* matrix1, Matrix* matrix2,Matrix *mResult, 
     //Popolo sample
     sample->execTimeSecs = tEnd.tv_sec - tStart.tv_sec;
     sample->execTimeNsecs = tEnd.tv_nsec - tStart.tv_nsec;
-    sample->gflops= (double)2*matrix2->cols*matrix1->numNonZero/sample->execTimeNsecs;
-    sample->bandwidth = (double) sizeof(double)*(matrix1->numNonZero + matrix2->cols * matrix2->rows)/sample->execTimeNsecs;
-    sample->productName = calloc(strlen(__func__),sizeof(char));
-    strcpy(sample->productName, __func__);  
+    sample->gflops= calcGflops(sample -> execTimeSecs, sample -> execTimeNsecs, matrix1->numNonZero, matrix2->cols);
+    // bandwith computation is approximated since we don't know the size in bytes of the
+    // actual formats.
+    double size = ((sizeof(double) * matrix1->numNonZero) + (sizeof(double) * matrix2 ->rows * matrix2 ->cols)) / 1e6;
+    sample->bandwidth = calcBandwidth(size, sample -> execTimeSecs, sample -> execTimeNsecs);
+    sample->productName = (char *) __func__;
     
     return 0;
 }

@@ -22,11 +22,11 @@ typedef struct matrix_sample_id{
  */
 typedef struct sample{
 
-    /** Tempo di esecuzione del prodotto matriciale in secondi*/
-    double execTimeSecs;
+    /** parte in secondi del tempo di esecuzione del prodotto matriciale*/
+    time_t execTimeSecs;
 
-    /** Tempo di esecuzione del prodotto matriciale in nanosecondi*/
-    double execTimeNsecs;
+    /** parte in nanosecondi del tempo di esecuzione del prodotto matriciale*/
+    long execTimeNsecs;
     
     /** Numero di miliardi di FLOating point OPerationS per secondo*/
     double gflops;
@@ -43,6 +43,25 @@ typedef struct sample{
     
 
 } Sample;
+
+/**
+ * @param execTimeSecs
+ * @param execTimeNsecs
+ * @param numNonZero numero di elementi non nulli della matrice sparsa
+ * @param nMVCols numero di colonne del multivettore
+ * @return the number of GFLOPS
+*/
+double calcGflops(time_t execTimeSecs, long execTimeNsecs, int numNonZero, int nMVCols);
+
+/**
+ * Use this function to set the bandwidth to the provided Sample.
+ * @param numMBytes numero di MBs elaborati, ad esempio la somma in MBs delle 
+ * matrici del prodotto.
+ * @param execTimeSecs
+ * @param execTimeNsecs
+ * @return the bandwidth in MB/s
+*/
+double calcBandwidth(double numMBytes, time_t execTimeSecs, long execTimeNsecs);
 
 
 /**

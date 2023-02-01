@@ -4,11 +4,15 @@
 #include "matrix/formats/arrayDense.h"
 #include "mediator/mediator.h"
 #include <omp.h>
+#include <time.h>
 
 int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matrix *mResult, Sample *sample){
 
     DataEllpack *ellpackData = (DataEllpack *) matrix1->data;
     double **multivectorData = (double **) matrix2->data;
+
+    struct timespec start, end;
+    double numMBytesEllpack, numMBytesMultivector;
 
     // we store the result in a buffer array in order to not taint perfomance
     // measurements with the time needed to write the result in the result matrix
@@ -16,6 +20,9 @@ int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matri
     double *resultData = (double *) result ->data;
 
     // TODO: start measuring
+    sample ->productName = (char *)__func__;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
         
     /**
      * All variables used in the parallel region are shared unless specified otherwise.
@@ -23,11 +30,12 @@ int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matri
      * schedule(static):
      *  Each thread will be assigned a fixed number of iterations.
      *  Since each iteration should do the same amount of work, this should be a faster option
-     *  compared to a dynamic schedule, which implies synchronization overhead.
+     *  compared to a dynamic schedule, since the implies synchronization overhead.
      * 
      * collapse(3):
      *  All for cycles are collapsed into a single loop, so its iterations
-     *  are distributed among the threads.
+     *  are distributed among the threads. This is possibile because each loop has a
+     *  fixed number of iterations indipendent from other loops.
     */
     #pragma omp parallel for default(shared) schedule(static) collapse(3) 
     for (int r1 = 0; r1 < ellpackData ->rowsSubMat; r1++){
@@ -47,6 +55,14 @@ int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matri
     }
     
     // TODO: stop measuring and write the measurements down in the sample
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    sample ->execTimeSecs = end.tv_sec - start.tv_sec;
+    sample ->execTimeNsecs = end.tv_nsec - start.tv_nsec;
+    sample ->gflops = calcGflops(sample ->execTimeSecs, sample ->execTimeNsecs, matrix1 ->numNonZero, matrix2 ->cols);
+    numMBytesEllpack = (sizeof(double) * matrix1 ->numNonZero) / 1e6;
+    numMBytesMultivector = sizeof(double) * matrix2 ->rows * matrix2 ->cols / 1e6;
+    double size = numMBytesEllpack + numMBytesMultivector;
+    sample ->bandwidth = calcBandwidth(size, sample ->execTimeSecs, sample ->execTimeNsecs);
 
     // write the result in the result matrix
     convert_dense_too(result, mResult);

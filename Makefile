@@ -11,7 +11,7 @@ objectsCuda=$(srcCuda:./src/%.cu=./obj/%.o)
 objects=$(objectsC) $(objectsCuda)
 
 # header file names
-headers=$(shell find ./src -name "*.h") $(shell find ${cudaPath}/samples/common/inc -name "*.h")
+headers=$(shell find ./src -name "*.h")
 
 # output directories
 objectsDir=./obj
@@ -24,7 +24,7 @@ CC=nvcc
 INCLUDES=-I./src -I${cudaPath}/samples/common/inc
 DEBUG=-g -G -DLOG_LEVEL=3
 FAST=-O3 --use_fast_math -DLOG_LEVEL=1
-CPP=-x c++ --compiler-options -fpermissive	# usare anche per compilare i file .c
+CPP=-x c++ --compiler-options -fpermissive# usare anche per compilare i file .c
 CUDA=-x cu
 OPENMP=--compiler-options -fopenmp
 
