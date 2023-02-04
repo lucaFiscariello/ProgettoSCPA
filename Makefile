@@ -48,10 +48,11 @@ $(binDir)/release: $(src)
 	mkdir -p $(binDir)
 	$(CC) $(CPP) $(OPENMP) $(INCLUDES) $(FAST) -c $(srcC)
 	$(CC) $(CUDA) $(OPENMP) $(INCLUDES) $(FAST) -dc $(srcCuda)
-	$(CC) *.o -o $@
+	$(CC) $(OPENMP) *.o -o $@
 	rm *.o
 
-all: debug
+all: bin/debug bin/release
 
 clean:
 	rm -rf $(objectsDir) $(binDir)
+	rm -f *.o
