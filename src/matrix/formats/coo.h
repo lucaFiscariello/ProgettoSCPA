@@ -19,7 +19,7 @@ typedef struct coo_data{
 /** constructor*/
 Matrix *newMatrixCOO();
 
-/** destructor*/
+/** destructor. Safe to call on NULL self*/
 void freeMatrixCOO(Matrix *self);
 
 #endif // COO_H

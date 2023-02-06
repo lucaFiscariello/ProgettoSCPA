@@ -10,8 +10,8 @@
  */
 typedef struct matrix_sample_id{
     
-    int numElements;    // NZ nel caso delle matrici sparse, k nel caso del multivettore
-    int numBytes;       // grandezza in bytes della matrice in memoria
+    long numElements;    // NZ nel caso delle matrici sparse, k nel caso del multivettore
+    long numBytes;       // grandezza in bytes della matrice in memoria
     char *name;         // nome identificativo della matrice
 
 } MatrixSampleID;
@@ -22,47 +22,59 @@ typedef struct matrix_sample_id{
  */
 typedef struct sample{
 
-    /** parte in secondi del tempo di esecuzione del prodotto matriciale*/
+    /** parte in secondi del tempo di esecuzione del prodotto matriciale
+     * Deve essere scritto dall'implementazione del prodotto matriciale
+    */
     time_t execTimeSecs;
 
-    /** parte in nanosecondi del tempo di esecuzione del prodotto matriciale*/
+    /** parte in nanosecondi del tempo di esecuzione del prodotto matriciale
+     * Deve essere scritto dall'implementazione del prodotto matriciale
+    */
     long execTimeNsecs;
     
-    /** Numero di miliardi di FLOating point OPerationS per secondo*/
-    double gflops;
-    
-    /** Nome identifiativo dell'implementazione del prodotto matriciale*/
+    /** Nome identifiativo dell'implementazione del prodotto matriciale.
+     * deve essere scritto dall'implementazione del prodotto matriciale.
+    */
     char *productName;
-    
-    /** Numero di MBs elaborati per secondo*/
+
+    /** Numero di miliardi di FLOating point OPerationS per secondo.
+     * Può essere calcolato dall'experimenter.
+    */
+    double gflops;
+
+    /** Numero di MBs elaborati per secondo.
+     * Può essere calcolato dall'experimenter.
+    */
     double bandwidth;
 
-    MatrixSampleID matrix1;
-
-    MatrixSampleID matrix2;
+    /** trial index
+     * Deve essere scritto dall'experimenter.
+     */
+    int trial;
     
+    /** Dati identificativi della matrice 1.
+     * Devono essere passati dal pilota dell'experimenter.
+    */
+    MatrixSampleID *m1SampleId;
+
+    /** Dati identificativi della matrice 2.
+     * Devono essere passati dal pilota dell'experimenter.
+    */
+    MatrixSampleID *m2SampleId;    
 
 } Sample;
 
 /**
- * @param execTimeSecs
- * @param execTimeNsecs
- * @param numNonZero numero di elementi non nulli della matrice sparsa
- * @param nMVCols numero di colonne del multivettore
- * @return the number of GFLOPS
+ * @brief sets the number of GFLOPS in the provided Sample.
+ * @return il numero di GFLOPS calcolato
 */
-double calcGflops(time_t execTimeSecs, long execTimeNsecs, int numNonZero, int nMVCols);
+double calcGflops(Sample *self);
 
 /**
  * Use this function to set the bandwidth to the provided Sample.
- * @param numMBytes numero di MBs elaborati, ad esempio la somma in MBs delle 
- * matrici del prodotto.
- * @param execTimeSecs
- * @param execTimeNsecs
- * @return the bandwidth in MB/s
+ * @return il numero di MBs elaborati per secondo
 */
-double calcBandwidth(double numMBytes, time_t execTimeSecs, long execTimeNsecs);
-
+double calcBandwidth(Sample *self);
 
 /**
  * @brief

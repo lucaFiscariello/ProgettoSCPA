@@ -130,6 +130,10 @@ Matrix *newMatrixCOO(){
 
 void freeMatrixCOO(Matrix *self){
     
+    if (self == NULL){
+        return;
+    }
+    
     DataCOO *data = (DataCOO *)self->data;
 
     // free data
