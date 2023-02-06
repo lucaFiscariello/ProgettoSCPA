@@ -53,7 +53,7 @@ int putCOO(Matrix *self, int r, int c, double val){
                 data ->elements[i] = val;
                 return 0;
             } else {
-                // val è zero. Per mantenere la lista senza elementi nulli, prendo l'elemento
+                // val è zero. Per mantenere l'array senza elementi nulli nel mezzo, prendo l'elemento
                 // non-zero alla fine dell'array e lo metto al suo posto, aggiornando gli indici.
                 if (self ->numNonZero - 1 > 0){
                     data ->elements[i] = data ->elements[self ->numNonZero - 1];
@@ -106,6 +106,10 @@ void printCOO(Matrix *self){
     }
 }
 
+long getSizeCOO(Matrix *self){
+    return sizeof(double) * self ->numNonZero + 2 * sizeof(int) * self ->numNonZero;
+}
+
 Matrix *newMatrixCOO(){
 
     Matrix *self = newMatrix();
@@ -119,6 +123,7 @@ Matrix *newMatrixCOO(){
     self ->get = getCOO;
     self ->getNonZero = getNonZeroCOO;
     self ->print = printCOO;
+    self ->getSize = getSizeCOO;
 
     return self;
 }

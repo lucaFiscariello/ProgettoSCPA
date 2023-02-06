@@ -19,10 +19,8 @@ int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matri
     Matrix *result = newArrayDenseMatrix(matrix1 ->rows, matrix2->cols);
     double *resultData = (double *) result ->data;
 
-    // TODO: start measuring
     sample ->productName = (char *)__func__;
     clock_gettime(CLOCK_MONOTONIC, &start);
-
         
     /**
      * All variables used in the parallel region are shared unless specified otherwise.
@@ -54,15 +52,10 @@ int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matri
         }
     }
     
-    // TODO: stop measuring and write the measurements down in the sample
+    // stop measuring and write the measurements down in the sample
     clock_gettime(CLOCK_MONOTONIC, &end);
     sample ->execTimeSecs = end.tv_sec - start.tv_sec;
     sample ->execTimeNsecs = end.tv_nsec - start.tv_nsec;
-    sample ->gflops = calcGflops(sample ->execTimeSecs, sample ->execTimeNsecs, matrix1 ->numNonZero, matrix2 ->cols);
-    numMBytesEllpack = (sizeof(double) * matrix1 ->numNonZero) / 1e6;
-    numMBytesMultivector = sizeof(double) * matrix2 ->rows * matrix2 ->cols / 1e6;
-    double size = numMBytesEllpack + numMBytesMultivector;
-    sample ->bandwidth = calcBandwidth(size, sample ->execTimeSecs, sample ->execTimeNsecs);
 
     // write the result in the result matrix
     convert_dense_too(result, mResult);

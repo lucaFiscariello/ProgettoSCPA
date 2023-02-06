@@ -62,6 +62,13 @@ typedef struct matrix
     */
     void (*print)(struct matrix *self);
 
+    /**
+     * Returns an approximate size in bytes of the data used by this format to
+     * store the matrix values and coordinates.
+     * Size is not exact since it can neglect some overhead data.
+    */
+    long (*getSize)(struct matrix *self);
+
 } Matrix;
 
 

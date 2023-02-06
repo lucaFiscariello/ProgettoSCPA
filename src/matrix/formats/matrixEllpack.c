@@ -139,6 +139,12 @@ NotZeroElement* getNonZeroEllpack(Matrix *self, int numZero){
     return NULL;
 }
 
+long getSizeEllpack(Matrix *self){
+
+    DataEllpack *data = (DataEllpack*)self->data;
+    return sizeof(double) * data ->colsSubMat * data ->rowsSubMat + sizeof(int) * data ->colsSubMat * data ->rowsSubMat;
+}
+
 /**
  * Funzione per deallocare matrice in memoria
 */
@@ -174,6 +180,7 @@ Matrix* newMatrixEllpack() {
     matrix->get = getEllpack;
     matrix->print = printEllpack;
     matrix->getNonZero = getNonZeroEllpack;
+    matrix->getSize = getSizeEllpack;
     matrix->cols = dataEllpack->colsSubMat;
     matrix->rows = dataEllpack->rowsSubMat;
     matrix->numNonZero = 0;

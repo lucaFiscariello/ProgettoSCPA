@@ -41,6 +41,10 @@ void printArrayDense(Matrix *self){
     }
 }
 
+long getSizeArrayDense(Matrix *self){
+    return sizeof(double) * self ->rows * self ->cols;
+}
+
 Matrix *newArrayDenseMatrix(int rows, int cols){
 
     Matrix *self = newMatrix();
@@ -55,6 +59,7 @@ Matrix *newArrayDenseMatrix(int rows, int cols){
     self ->put = putArrayDense;
     self ->get = getArrayDense;
     self ->print = printArrayDense;
+    self ->getSize = getSizeArrayDense;
 
     return self; 
 }

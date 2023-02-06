@@ -39,6 +39,9 @@ void printMultiVector(Matrix *self){
     
 }
 
+long getSizeMultiVector(Matrix *self){
+    return self->rows*self->cols*sizeof(double);
+}
 
 /**
  * Funzione per deallocare matrice in memoria
@@ -66,6 +69,7 @@ Matrix* newMultiVector(int rows, int cols) {
     matrix->put = putMultiVector;
     matrix->get = getMultiVector;
     matrix->print = printMultiVector;
+    matrix->getSize = getSizeMultiVector;
     matrix->cols = cols;
     matrix->rows = rows;
     matrix->numNonZero = cols*rows;

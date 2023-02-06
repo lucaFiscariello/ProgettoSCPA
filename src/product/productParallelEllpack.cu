@@ -120,10 +120,7 @@ int productMatrixMatrixParallelEllpack(Matrix *matrix1, Matrix *matrix2, Matrix 
 
     sample->execTimeSecs = tEnd.tv_sec - tStart.tv_sec;
     sample->execTimeNsecs = tEnd.tv_nsec - tStart.tv_nsec;
-    sample ->gflops = calcGflops(sample ->execTimeSecs, sample ->execTimeNsecs, matrix1->numNonZero, matrix2->cols);
-    sample->bandwidth = (double) sizeof(double)*(matrix1->numNonZero + matrix2->cols * matrix2->rows)/sample->execTimeNsecs;
     sample->productName = (char *)__func__;
-
     return 0;
 }
 
