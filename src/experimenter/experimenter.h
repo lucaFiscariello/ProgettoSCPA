@@ -32,4 +32,11 @@ int doExperiments(
     int numTrials,
     Sample *samples[]);
 
+/**
+ * Questa funzione permette di stampare su un csv tutti i samples ottenuti 
+ * in seguito all'esecuzione dei prodotti matrice sparsa - multivettore
+*/
+int printSamplesToCSV(int numSamples, Sample *samples[], char *filename);
+
+
 #endif // EXPERIMENTER_H

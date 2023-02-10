@@ -2,7 +2,10 @@
 #include "matrix/formats/coo.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include "logger/logger.h"
+#include "libcsv/csv.h"
 
 int doExperiments(
     Matrix *m1[], MatrixSampleID *msid1[], int numM1,
@@ -53,9 +56,43 @@ int doExperiments(
 
 int printSamplesToCSV(int numSamples, Sample *samples[], char *filename){
 
-    // TODO: implement me!
-    LOG_UNIMPLEMENTED_CALL();
+    FILE *csv;
+    csv = fopen(filename,"wb");
+
+    //Stampo header
+    fprintf(csv,"execTimeSecs,");
+    fprintf(csv,"execTimeNsecs,");
+    fprintf(csv,"productName,");
+    fprintf(csv,"gflops,");
+    fprintf(csv,"bandwidth,");
+    fprintf(csv,"numElements_mat1,");
+    fprintf(csv,"numBytes_mat1,");
+    fprintf(csv,"name_mat1,");
+    fprintf(csv,"numElements_mat2,");
+    fprintf(csv,"numBytes_mat2,");
+    fprintf(csv,"name_mat2\n");
+    
+    //Stampo un sample per ogni riga
+    for(int i=0; i< numSamples; i++){
+
+        fprintf(csv,"%ld,",samples[i]->execTimeSecs);
+        fprintf(csv,"%ld,",samples[i]->execTimeNsecs);
+        fprintf(csv,"%s,",samples[i]->productName);
+        fprintf(csv,"%f,",samples[i]->gflops);
+        fprintf(csv,"%f,",samples[i]->bandwidth);
+        fprintf(csv,"%ld,",samples[i]->m1SampleId->numElements);
+        fprintf(csv,"%ld,",samples[i]->m1SampleId->numBytes);
+        fprintf(csv,"%s,",samples[i]->m1SampleId->name);
+        fprintf(csv,"%ld,",samples[i]->m2SampleId->numElements);
+        fprintf(csv,"%ld,",samples[i]->m2SampleId->numBytes);
+        fprintf(csv,"%s\n",samples[i]->m2SampleId->name);
+
+
+    }
+
+
 
     return 0;
 
 }
+

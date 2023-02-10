@@ -10,7 +10,7 @@
 
 void testProduct(int (*productSparseMultivector)(Matrix *m1, Matrix *m2, Matrix *mr, Sample *s) ){
     
-    char *matrixFileName = "/data/dlaprova/matrix-multiVector-product/matrixFile/Trec5.mtx";
+    char *matrixFileName = "matrixFile/Trec5.mtx";
     
     Matrix *matrixMM = newMatrixMM(matrixFileName);
     Matrix *matrixEllpack = newMatrixEllpack();
@@ -69,7 +69,7 @@ void testProduct(int (*productSparseMultivector)(Matrix *m1, Matrix *m2, Matrix 
 }
 
 void testExperimenter(){
-    char *matrixFileName = "/data/dlaprova/matrix-multiVector-product/matrixFile/Trec5.mtx";
+    char *matrixFileName = "matrixFile/Trec5.mtx";
     
     const int NUM_M1 = 1;
     const int NUM_M2 = 1;
@@ -121,6 +121,8 @@ void testExperimenter(){
          samples[i]->m2SampleId->name, samples[i]->productName, samples[i]->trial,
           samples[i]->gflops, samples[i]->bandwidth);
     }
+
+    printSamplesToCSV(NUM_EXPERIMENTS,samples,"sample.csv");
 }
 
 
@@ -132,6 +134,8 @@ int main(int argc, char *argv[]){
     //testProduct(productEllpackMultivectorParallelCPU);
     //testProduct(productMatrixMatrixParallelEllpack);
     testExperimenter();
+
+    
 
     return 0;
 }
