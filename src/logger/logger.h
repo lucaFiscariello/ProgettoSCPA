@@ -15,7 +15,7 @@
 
 #define LOG_ERROR(msg, ...)\
     do {\
-        char *log_error_buffer = calloc(strlen(__func__) + strlen(LOG_MSG_SEP) + strlen(msg) + 1, sizeof(char)); \
+        char *log_error_buffer = (char *)calloc(strlen(__func__) + strlen(LOG_MSG_SEP) + strlen(msg) + 1, sizeof(char)); \
         memcpy(log_error_buffer, __func__, strlen(__func__)); \
         log_error_buffer = strcat(log_error_buffer, LOG_MSG_SEP); \
         log_error_buffer = strcat(log_error_buffer, msg); \
@@ -40,7 +40,7 @@
     do{\
         int err = errno; \
         char *errmsg = strerror(err); \
-        char *log_errno_buffer = calloc(strlen(msg) +strlen(LOG_MSG_SEP) + strlen(errmsg) + 2, sizeof(char));\
+        char *log_errno_buffer = (char *)calloc(strlen(msg) +strlen(LOG_MSG_SEP) + strlen(errmsg) + 2, sizeof(char));\
         memcpy(log_errno_buffer, msg, strlen(msg)); \
         log_errno_buffer = strcat(log_errno_buffer, LOG_MSG_SEP); \
         log_errno_buffer = strcat(log_errno_buffer, errmsg); \
@@ -85,6 +85,15 @@ enum Tag
 
 };
 
+/**
+ * Logs a message, if the tag is <= LOG_LEVEL.
+ * You can pass a format string and a variable number of arguments, just like printf.
+*/
 void logMsg(enum Tag tag, const char* msg, ...);
+
+/**
+ * Use this to log the call of passed function name as unimplemented.
+*/
+void logUnimplementedCall(const char* funcName);
 
 #endif // LOGGER_H_INCLUDED
