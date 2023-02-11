@@ -49,7 +49,7 @@ Matrix *newArrayDenseMatrix(int rows, int cols){
 
     Matrix *self = newMatrix();
     self ->data = calloc(rows * cols, sizeof(double));
-
+    self ->formatName = "ArrayDense";
     self ->rows = rows;
     self ->cols = cols;
 

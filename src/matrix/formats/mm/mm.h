@@ -25,7 +25,7 @@ typedef struct mm_data{
  * It also opens the underlying file.
  * The matrix file must already exists and be in MatrixMarket format.
  * */
-Matrix *newMatrixMM(char *filename);
+Matrix *newMatrixMM(const char *filename);
 
 /** destructor.
  * It also closes the underlying file
@@ -39,7 +39,7 @@ char *mmio_strerror(int mm_err);
         int err = isError; \
         if (err){ \
             char *errmsg = mmio_strerror(err); \
-            char *log_mmio_buf = calloc(strlen(msg) + strlen(LOG_MSG_SEP) + strlen(errmsg) + 2, sizeof(char)); \
+            char *log_mmio_buf = (char *)calloc(strlen(msg) + strlen(LOG_MSG_SEP) + strlen(errmsg) + 2, sizeof(char)); \
             memcpy(log_mmio_buf, msg, strlen(msg)); \
             log_mmio_buf = strcat(log_mmio_buf, LOG_MSG_SEP); \
             log_mmio_buf = strcat(log_mmio_buf, errmsg); \

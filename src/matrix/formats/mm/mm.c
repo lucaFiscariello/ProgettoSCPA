@@ -97,7 +97,7 @@ void reset(FILE *f){
 */
 int skipMetadata(DataMM *data){
 
-    int c;
+    int c = 0;
     FILE* f = data ->file;
 
     // skip all comment lines
@@ -304,12 +304,13 @@ Matrix *cleanup(Matrix *self){
     return NULL;
 }
 
-Matrix *newMatrixMM(char *filename){
+Matrix *newMatrixMM(const char *filename){
 
     Matrix *self = newMatrix();
     DataMM *data = calloc(1, sizeof(DataMM));
 
     self ->data = data;
+    self ->formatName = "MatrixMarket";
     
     // open file and parses banner
     data->file = fopen(filename, "a+");

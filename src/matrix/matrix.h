@@ -28,6 +28,11 @@ typedef struct matrix
     int cols;
 
     /**
+     * Stringa identificativa del formato
+    */
+    const char *formatName; 
+    
+    /**
      * Matrix data. The exact data structure is chosen by the
      * format.
     */
@@ -69,15 +74,20 @@ typedef struct matrix
     */
     long (*getSize)(struct matrix *self);
 
+    /**
+     * Creates an empty Matrix object in the same format as self. (See PROTOTYPE pattern).
+     * Users can use the MEDIATOR to populate the newborn matrix with values from self.
+    */
+    struct matrix *(*cloneEmpty)(struct matrix *self);
+
 } Matrix;
 
-
 /**
- * Creates a new Matrix object.
- * The format is chosen by the implementation.
+ * Creates a new Matrix object with NULL data and default method implementations and attribute values.
+ * A so created Matrix object should be used only by implementation constructors, which will populate
+ * it with the correct data in the desired format, attribute values and method implementations.
 */
 Matrix *newMatrix();
-
 
 /**
  * Frees the memory allocated by the matrix.
@@ -88,6 +98,5 @@ void freeMatrix(Matrix *self);
  * Checks if given indexes are out of matrix bounds.
 */
 bool outOfBounds(Matrix *self, int r, int c);
-
 
 #endif // MATRIX_H

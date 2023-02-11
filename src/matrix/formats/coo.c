@@ -110,6 +110,11 @@ long getSizeCOO(Matrix *self){
     return sizeof(double) * self ->numNonZero + 2 * sizeof(int) * self ->numNonZero;
 }
 
+Matrix *cloneEmptyCOO(Matrix *self){
+    Matrix *clone = newMatrixCOO();
+    return clone;
+}
+
 Matrix *newMatrixCOO(){
 
     Matrix *self = newMatrix();
@@ -117,6 +122,7 @@ Matrix *newMatrixCOO(){
     
     /** setup members*/
     self ->data = data;
+    self ->formatName = "COO";
     
     /** setup methods*/
     self ->put = putCOO;
@@ -124,6 +130,7 @@ Matrix *newMatrixCOO(){
     self ->getNonZero = getNonZeroCOO;
     self ->print = printCOO;
     self ->getSize = getSizeCOO;
+    self ->cloneEmpty = cloneEmptyCOO;
 
     return self;
 }

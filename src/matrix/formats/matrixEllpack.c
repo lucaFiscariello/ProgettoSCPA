@@ -22,10 +22,11 @@ int putEllpack(Matrix *self, int r, int c, double val){
         data->matCols    = realloc(data->matCols,   sizeof(int*)*(r+1));
         data->nextInsert = realloc(data->nextInsert,sizeof(int)*(r+1));
         
-        //Alloco le colonne associate alle righe appena aggiunte
+        //Alloco le colonne associate alle righe appena aggiunte e pulisco le nuove caselle di nextInsert
         for(int k=data->rowsSubMat; k<r+1; k++ ){
             data->matValues[k] =  calloc(data->colsSubMat,sizeof(double));
             data->matCols[k]   =  calloc(data->colsSubMat,sizeof(int));
+            data->nextInsert[k] =  0;
         }
 
         data->rowsSubMat=r+1;
@@ -153,6 +154,10 @@ void freeMatrixEllpack(Matrix *self){
     free(self);
 }
 
+Matrix *cloneEmptyEllpack(Matrix *self){
+    Matrix* clone = newMatrixEllpack();
+    return clone;
+}
 
 /**
  * Costruttore della matrice in formato ellpack
@@ -175,15 +180,18 @@ Matrix* newMatrixEllpack() {
     
 
     //Inizializzo matrice da resitituire
+    matrix->formatName = "ELLPACK";
     matrix->data = dataEllpack;
     matrix->put = putEllpack;
     matrix->get = getEllpack;
     matrix->print = printEllpack;
     matrix->getNonZero = getNonZeroEllpack;
     matrix->getSize = getSizeEllpack;
+    matrix->cloneEmpty = cloneEmptyEllpack;
     matrix->cols = dataEllpack->colsSubMat;
     matrix->rows = dataEllpack->rowsSubMat;
     matrix->numNonZero = 0;
 
     return matrix;
 }
+
