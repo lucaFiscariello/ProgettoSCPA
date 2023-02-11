@@ -22,6 +22,7 @@ binDir=./bin
 # compiler
 CC=nvcc
 INCLUDES=-I./src -I${cudaPath}/samples/common/inc
+LINK=-lm
 DEBUG=-g -G -DLOG_LEVEL=3
 FAST=-O3 --use_fast_math -DLOG_LEVEL=1
 CPP=-x c++ --compiler-options -fpermissive# usare anche per compilare i file .c
@@ -41,14 +42,14 @@ $(objectsCuda): $(objectsDir)/%.o: $(srcDir)/%.cu $(headers)
 # linka i file .o in obj e crea il file debug
 $(binDir)/debug: $(objectsC) $(objectsCuda)
 	mkdir -p $(binDir)
-	$(CC) $(OPENMP) $^ -o $@
+	$(CC) $(OPENMP) $(LINK) $^ -o $@
 
 # compila tutti i sorgenti in src in un eseguibile ottimizzato per le prestazioni
 $(binDir)/release: $(src)
 	mkdir -p $(binDir)
 	$(CC) $(CPP) $(OPENMP) $(INCLUDES) $(FAST) -c $(srcC)
 	$(CC) $(CUDA) $(OPENMP) $(INCLUDES) $(FAST) -dc $(srcCuda)
-	$(CC) $(OPENMP) *.o -o $@
+	$(CC) $(OPENMP) $(LINK) *.o -o $@
 	rm *.o
 
 all: bin/debug bin/release

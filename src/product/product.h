@@ -12,9 +12,16 @@ typedef struct matrix_sample_id{
     
     long numElements;    // NZ nel caso delle matrici sparse, k nel caso del multivettore
     long numBytes;       // grandezza in bytes della matrice in memoria
-    char *name;         // nome identificativo della matrice
+    const char *name;         // nome identificativo della matrice
+    const char *formatName;       // nome del formato della matrice  
 
 } MatrixSampleID;
+
+/**
+ * Convenience constructor
+*/
+MatrixSampleID *newMatrixSampleID(long numElements, long numBytes, const char *name, const char *formatName);
+void freeMatrixSampleID(MatrixSampleID *self);
 
 /**
  * @brief Struttura che contiene i dati di un campione di misurazione
@@ -60,7 +67,7 @@ typedef struct sample{
     /** Dati identificativi della matrice 2.
      * Devono essere passati dal pilota dell'experimenter.
     */
-    MatrixSampleID *m2SampleId;    
+    MatrixSampleID *m2SampleId;
 
 } Sample;
 

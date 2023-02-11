@@ -22,3 +22,15 @@ double calcBandwidth(Sample *self){
     return self->bandwidth;
 
 }
+
+MatrixSampleID *newMatrixSampleID(long numElements, long numBytes, const char *name, const char *formatName){
+    MatrixSampleID *self = calloc(1, sizeof(MatrixSampleID));
+    self->numElements = numElements;
+    self->numBytes = numBytes;
+    self->name = name;
+    self->formatName = formatName;
+    return self;
+}
+void freeMatrixSampleID(MatrixSampleID *self){
+    free(self);
+}
