@@ -1,3 +1,0 @@
-[submodule "src/libcsv"]
-	path = src/libcsv
-	url = https://github.com/scpa-2023/libcsv-portable.git

@@ -28,6 +28,8 @@ const int NUM_MATRIX_FILE_NAMES = sizeof(MATRIX_FILE_NAMES) / sizeof(void *); //
 
 /**
  * Sparse matrix formats to use in experiments
+ * FIXME: c++ magic is needed to initialize matrix objects in constants, so this
+ * code can only compile with nvcc or g++ (gcc won't work).
 */
 const Matrix *MATRIX_FORMATS[] = {
     newMatrixCOO(),
@@ -157,6 +159,50 @@ int doExperiments(
     return 0;
 }
 
+int printSamplesToCSV(int numSamples, Sample *samples[], char *filename){
+
+    FILE *csv;
+    csv = fopen(filename,"wb");
+
+    //Stampo header
+    fprintf(csv,"execTimeSecs,");
+    fprintf(csv,"execTimeNsecs,");
+    fprintf(csv,"productName,");
+    fprintf(csv,"gflops,");
+    fprintf(csv,"bandwidth,");
+    fprintf(csv,"numElements_mat1,");
+    fprintf(csv,"numBytes_mat1,");
+    fprintf(csv,"name_mat1,");
+    fprintf(csv, "format_mat1,");
+    fprintf(csv,"numElements_mat2,");
+    fprintf(csv,"numBytes_mat2,");
+    fprintf(csv,"name_mat2\n");
+    
+    //Stampo un sample per ogni riga
+    for(int i=0; i< numSamples; i++){
+
+        fprintf(csv,"%ld,",samples[i]->execTimeSecs);
+        fprintf(csv,"%ld,",samples[i]->execTimeNsecs);
+        fprintf(csv,"%s,",samples[i]->productName);
+        fprintf(csv,"%f,",samples[i]->gflops);
+        fprintf(csv,"%f,",samples[i]->bandwidth);
+        fprintf(csv,"%ld,",samples[i]->m1SampleId->numElements);
+        fprintf(csv,"%ld,",samples[i]->m1SampleId->numBytes);
+        fprintf(csv,"%s,",samples[i]->m1SampleId->name);
+        fprintf(csv,"%s,",samples[i]->m1SampleId->formatName);
+        fprintf(csv,"%ld,",samples[i]->m2SampleId->numElements);
+        fprintf(csv,"%ld,",samples[i]->m2SampleId->numBytes);
+        fprintf(csv,"%s\n",samples[i]->m2SampleId->name);
+
+
+    }
+
+    fclose(csv);
+
+    return 0;
+
+}
+
 /*************************************** MAIN ****************************************************/
 
 int main(int argc, char *argv[]){
@@ -225,13 +271,9 @@ int main(int argc, char *argv[]){
     doExperiments(m1s, m1sids, m2s, m2sids, NUM_M, PRODUCTS, NUM_PRODUCTS, TRIALS, samples);
 
     /**
-     * TODO: scrivere i risultati su file csv
+     * scrive i risultati su file csv
      */
-    for (int i = 0; i < NUM_EXPERIMENTS; i ++){
-        printf("%-s, %-s, %-s, %-6d, %-6.6f, %-6.6f\n", samples[i]->m1SampleId->name,
-         samples[i]->m2SampleId->name, samples[i]->productName, samples[i]->trial,
-          samples[i]->gflops, samples[i]->bandwidth);
-    }
+    printSamplesToCSV(NUM_EXPERIMENTS, samples, "results.csv");
 
     return 0;
 }
