@@ -22,7 +22,8 @@
 const char *MATRIX_FILE_NAMES[] = {
     // TODO: insert matrix file names here
     "/data/dlaprova/matrix-multiVector-product/matrixFile/Trec5.mtx",
-    //"/data/dlaprova/matrix-multiVector-product/matrixFile/cage4.mtx",
+    "/data/dlaprova/matrix-multiVector-product/matrixFile/cage4.mtx",
+    "/data/dlaprova/matrix-multiVector-product/matrixFile/bcspwr01.mtx",    
 };
 const int NUM_MATRIX_FILE_NAMES = sizeof(MATRIX_FILE_NAMES) / sizeof(void *); // sizeof su array sullo stack restituisce la memoria occupata dall'array in bytes. (NON FUNZIONA SU POINTERS!). Inoltre uso sizeof(void *) perché i puntatori sono tutti grandi uguale.
 
@@ -33,7 +34,7 @@ const int NUM_MATRIX_FILE_NAMES = sizeof(MATRIX_FILE_NAMES) / sizeof(void *); //
 */
 const Matrix *MATRIX_FORMATS[] = {
     newMatrixCOO(),
-    //newMatrixEllpack(),
+    newMatrixEllpack(),
     // more matrix formats here ...
 };
 const int NUM_MATRIX_FORMATS = sizeof(MATRIX_FORMATS) / sizeof(void *);
@@ -43,7 +44,12 @@ const int NUM_MATRIX_FORMATS = sizeof(MATRIX_FORMATS) / sizeof(void *);
 */
 const int MV_WIDTHS[] = {
     3,
-    //4,
+    4,
+    8,
+    12,
+    16,
+    32,
+    64,
     // more multivector widths here ...
 };
 const int NUM_MV_WIDTHS = sizeof(MV_WIDTHS) / sizeof(int);
@@ -54,6 +60,8 @@ const int NUM_MV_WIDTHS = sizeof(MV_WIDTHS) / sizeof(int);
 */
 int (*PRODUCTS[])(Matrix *, Matrix *, Matrix *, Sample *) = {
     productMatrixMatrixSerial,
+    //productMatrixMatrixParallelEllpack,
+    //productEllpackMultivectorParallelCPU,
     // more product functions here ...
 };
 const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
@@ -63,7 +71,7 @@ const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
 /**
  * Number of trials to run for each experiment
 */
-const int TRIALS = 2; //1000
+const int TRIALS = 1000;
 
 /**
  * Seed da usare per la generazione dei numeri casuali
@@ -110,7 +118,7 @@ Matrix *craftUniformMultiVectorFromMatrix(Matrix *m, int k, double minVal, doubl
  * @param numTrials numero di volte per cui ogni esperimento deve essere ripetuto.
  * @param samples array multidimensionale in cui verranno scritti i puntatori ai Samples prodotti
  * da ogni
- * esperimento. Deve avere dimensione almeno pari a numM1 * numM2 * numProducts * numTrials.
+ * esperimento. Deve avere dimensione almeno pari a numM * numProducts * numTrials.
  * I samples sono allocati dinamicamente, e l'ownership è trasferita al caller.
 */
 int doExperiments(
@@ -127,6 +135,7 @@ int doExperiments(
     // ci servono solo i campionamenti prestazionali
     Matrix *mrBuffer = NULL;
     int curSampleIndex;
+    int progress = 0, oldProgress = 0;
         
     /**
      * experiment[i, p] --> (m1[i], m2[i], products[p])
@@ -152,6 +161,13 @@ int doExperiments(
                     ON_ERROR_LOG_AND_RETURN(products[p](m1[i], m2[i], mrBuffer, samples[curSampleIndex]), -1, "Error while doing trial %d for experiment %d, %d, %d\n", t, i, i, p);
                     calcGflops(samples[curSampleIndex]);
                     calcBandwidth(samples[curSampleIndex]);
+
+                    progress = (curSampleIndex * 100 / (numM * numProducts * numTrials));
+                    if (progress % 5 == 0 && progress != oldProgress)
+                    {
+                        oldProgress = progress;
+                        logMsg(LOG_TAG_I, "Generated %d percent of samples\n", progress);
+                    }
                 }
             }
     }
@@ -165,7 +181,6 @@ int printSamplesToCSV(int numSamples, Sample *samples[], char *filename){
     csv = fopen(filename,"wb");
 
     //Stampo header
-    fprintf(csv,"execTimeSecs,");
     fprintf(csv,"execTimeNsecs,");
     fprintf(csv,"productName,");
     fprintf(csv,"gflops,");
@@ -181,8 +196,7 @@ int printSamplesToCSV(int numSamples, Sample *samples[], char *filename){
     //Stampo un sample per ogni riga
     for(int i=0; i< numSamples; i++){
 
-        fprintf(csv,"%ld,",samples[i]->execTimeSecs);
-        fprintf(csv,"%ld,",samples[i]->execTimeNsecs);
+        fprintf(csv,"%ld,",samples[i]->execTimeNsecs * (samples[i]->execTimeSecs * 1e9));
         fprintf(csv,"%s,",samples[i]->productName);
         fprintf(csv,"%f,",samples[i]->gflops);
         fprintf(csv,"%f,",samples[i]->bandwidth);
@@ -219,6 +233,7 @@ int main(int argc, char *argv[]){
     // set seed for random number generation
     SelectStream(0);
     PutSeed(SEED);
+    logMsg(LOG_TAG_I, "Random number generator initialized\n");
 
     for (int i = 0; i < NUM_MATRIX_FILE_NAMES; i++){
         
@@ -264,16 +279,22 @@ int main(int argc, char *argv[]){
         }
     }
 
+    logMsg(LOG_TAG_I, "Matrices setup completed.\n");
+
     /**
      * moltiplica le matrici sparse con i corrispettivi multivettori
      * una volta per ogni funzione di prodotto matriciale desiderata
      * */
     doExperiments(m1s, m1sids, m2s, m2sids, NUM_M, PRODUCTS, NUM_PRODUCTS, TRIALS, samples);
+    logMsg(LOG_TAG_I, "Experiments completed.\n");
 
     /**
      * scrive i risultati su file csv
      */
-    printSamplesToCSV(NUM_EXPERIMENTS, samples, "results.csv");
+    char filename[128];
+    snprintf(filename, 128, "results_%d.csv", SEED);
+    printSamplesToCSV(NUM_EXPERIMENTS, samples, filename);
+    logMsg(LOG_TAG_I, "Samples written to file %s.\n", filename);
 
     return 0;
 }

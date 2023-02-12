@@ -20,7 +20,10 @@ int putMultiVector(Matrix *self, int r, int c, double val){
 */
 double getMultiVector(Matrix *self, int r, int c){
     
-    ON_ERROR_LOG_AND_RETURN(outOfBounds(self, r, c), -1, "Out of bounds: %d, %d\n", r, c);
+    if (outOfBounds(self, r, c)) {
+        return 0;
+    }
+    //ON_ERROR_LOG_AND_RETURN(outOfBounds(self, r, c), -1, "Out of bounds: %d, %d\n", r, c);
     double** data = (double**)self->data;
     return data[r][c];
 
