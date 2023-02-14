@@ -18,19 +18,19 @@ int putEllpack(Matrix *self, int r, int c, double val){
     if(data->rowsSubMat <= r){
         
         //Se non ho abbastanza righe rialloco la matrice aggiungendo il numero di righe necesssarie
-        data->matValues  = realloc(data->matValues, sizeof(double*)*(r+1));
-        data->matCols    = realloc(data->matCols,   sizeof(int*)*(r+1));
-        data->nextInsert = realloc(data->nextInsert,sizeof(int)*(r+1));
+        data->matValues  = (double **)realloc(data->matValues, sizeof(double*)*(r+1));
+        data->matCols    = (int **)realloc(data->matCols,   sizeof(int*)*(r+1));
+        data->nextInsert = (int *)realloc(data->nextInsert,sizeof(int)*(r+1));
         
         //Alloco le colonne associate alle righe appena aggiunte e pulisco le nuove caselle di nextInsert
         for(int k=data->rowsSubMat; k<r+1; k++ ){
-            data->matValues[k] =  calloc(data->colsSubMat,sizeof(double));
-            data->matCols[k]   =  calloc(data->colsSubMat,sizeof(int));
+            data->matValues[k] =  (double *)calloc(data->colsSubMat,sizeof(double));
+            data->matCols[k]   =  (int *)calloc(data->colsSubMat,sizeof(int));
             data->nextInsert[k] =  0;
         }
 
         data->rowsSubMat=r+1;
-        self->rows = data->rowsSubMat;
+        //self->rows = data->rowsSubMat;
 
     }
 
@@ -39,12 +39,12 @@ int putEllpack(Matrix *self, int r, int c, double val){
     if(data->nextInsert[r] == data->colsSubMat){
 
         data->colsSubMat++;
-        self->cols = data->colsSubMat;
+   //     self->cols = data->colsSubMat;
 
         //Se ho riempito tutta la riga rialloco le matrici aggiungendo una nuova colonna
         for(int i=0; i < data->rowsSubMat; i++){
-            data->matValues[i] =  realloc(data->matValues[i], sizeof(double)*(data->colsSubMat));
-            data->matCols[i]   =  realloc(data->matCols[i],   sizeof(int)*(data->colsSubMat));
+            data->matValues[i] =  (double *)realloc(data->matValues[i], sizeof(double)*(data->colsSubMat));
+            data->matCols[i]   =  (int *)realloc(data->matCols[i],   sizeof(int)*(data->colsSubMat));
         }
 
         
@@ -59,6 +59,12 @@ int putEllpack(Matrix *self, int r, int c, double val){
 
     //incremento numeri non zero
     self->numNonZero++;
+
+    // aggiorno il numero di righe e colonne della matrice
+    if(r+1 > self->rows)
+        self->rows = r+1;
+    if(c+1 > self->cols)
+        self->cols = c+1;
 
     return 0;
 
@@ -110,7 +116,7 @@ void printEllpack(Matrix *self){
 NotZeroElement* getNonZeroEllpack(Matrix *self, int numZero){
 
     DataEllpack* data = (DataEllpack*)self->data;
-    NotZeroElement* notZeroElement = calloc(1,sizeof(NotZeroElement));
+    NotZeroElement* notZeroElement = (NotZeroElement *)calloc(1,sizeof(NotZeroElement));
 
     int current=0;
 
@@ -165,18 +171,18 @@ Matrix *cloneEmptyEllpack(Matrix *self){
 Matrix* newMatrixEllpack() {
 
     Matrix* matrix = newMatrix();
-    DataEllpack* dataEllpack = calloc( 1,sizeof(DataEllpack ));
+    DataEllpack* dataEllpack = (DataEllpack*)calloc( 1,sizeof(DataEllpack ));
 
     dataEllpack->colsSubMat=1; // Inizializzo a 1 il numero di colonne della matrice sparsa
     dataEllpack->rowsSubMat=1; // Inizializzo a 1 il numero di righe
-    dataEllpack->nextInsert = calloc(1,sizeof(int)); 
+    dataEllpack->nextInsert = (int *)calloc(1,sizeof(int)); 
     
-    dataEllpack->matValues = calloc(1,sizeof(double*));
-    dataEllpack->matCols =  calloc(1,sizeof(int*));
+    dataEllpack->matValues = (double **)calloc(1,sizeof(double*));
+    dataEllpack->matCols =  (int **) calloc(1,sizeof(int*));
 
     //Inizialmente avrò una matrice con una sola riga e una sola colonna
-    dataEllpack->matValues[0] = calloc(1,sizeof(double));
-    dataEllpack->matCols[0] = calloc(1,sizeof(int));
+    dataEllpack->matValues[0] = (double *)calloc(1,sizeof(double));
+    dataEllpack->matCols[0] = (int *)calloc(1,sizeof(int));
     
 
     //Inizializzo matrice da resitituire

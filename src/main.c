@@ -20,10 +20,10 @@
  * Matrix file names to use in the experiments as sparse matrices
  */
 const char *MATRIX_FILE_NAMES[] = {
-    // TODO: insert matrix file names here
     "/data/dlaprova/matrix-multiVector-product/matrixFile/Trec5.mtx",
     "/data/dlaprova/matrix-multiVector-product/matrixFile/cage4.mtx",
-    "/data/dlaprova/matrix-multiVector-product/matrixFile/bcspwr01.mtx",    
+    "/data/dlaprova/matrix-multiVector-product/matrixFile/bcspwr01.mtx",
+    // more matrix file names here ...
 };
 const int NUM_MATRIX_FILE_NAMES = sizeof(MATRIX_FILE_NAMES) / sizeof(void *); // sizeof su array sullo stack restituisce la memoria occupata dall'array in bytes. (NON FUNZIONA SU POINTERS!). Inoltre uso sizeof(void *) perché i puntatori sono tutti grandi uguale.
 
@@ -31,11 +31,12 @@ const int NUM_MATRIX_FILE_NAMES = sizeof(MATRIX_FILE_NAMES) / sizeof(void *); //
  * Sparse matrix formats to use in experiments
  * FIXME: c++ magic is needed to initialize matrix objects in constants, so this
  * code can only compile with nvcc or g++ (gcc won't work).
+ * FIXME: dato che ogni prodotto è pensato per lavorare con un solo formato,
+ * bisogna fare in modo che ogni prodotto riceva il formato giusto.
+ * Dato che per ora non abbiamo un modo per farlo, per ora lasciamo solo ELLPACK.
 */
 const Matrix *MATRIX_FORMATS[] = {
-    newMatrixCOO(),
     newMatrixEllpack(),
-    // more matrix formats here ...
 };
 const int NUM_MATRIX_FORMATS = sizeof(MATRIX_FORMATS) / sizeof(void *);
 
@@ -61,7 +62,7 @@ const int NUM_MV_WIDTHS = sizeof(MV_WIDTHS) / sizeof(int);
 int (*PRODUCTS[])(Matrix *, Matrix *, Matrix *, Sample *) = {
     productMatrixMatrixSerial,
     //productMatrixMatrixParallelEllpack,
-    //productEllpackMultivectorParallelCPU,
+    productEllpackMultivectorParallelCPU,
     // more product functions here ...
 };
 const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
@@ -141,35 +142,35 @@ int doExperiments(
      * experiment[i, p] --> (m1[i], m2[i], products[p])
     */
     for (int i = 0; i < numM; i++){
-            for (int p = 0; p < numProducts; p++){
+        for (int p = 0; p < numProducts; p++){
 
-                // to do an experiment, we must cycle through all its trials
-                for (int t = 0; t < numTrials; t ++){
-                    
-                    // reset mr buffer entry with pristine COO matrices
-                    freeMatrixCOO(mrBuffer);                    
-                    mrBuffer = newMatrixCOO();
-                    
-                    // initialize sample for the trial of this experiment
-                    curSampleIndex = i * numProducts * numTrials + p * numTrials + t;
-                    samples[curSampleIndex] = (Sample *)calloc(1, sizeof(Sample));
-                    samples[curSampleIndex] -> m1SampleId = msid1[i];
-                    samples[curSampleIndex] -> m2SampleId = msid2[i];
-                    samples[curSampleIndex] -> trial = t;
+            // to do an experiment, we must cycle through all its trials
+            for (int t = 0; t < numTrials; t ++){
+                
+                // reset mr buffer entry with pristine COO matrices
+                freeMatrixCOO(mrBuffer);                    
+                mrBuffer = newMatrixCOO();
+                
+                // initialize sample for the trial of this experiment
+                curSampleIndex = i * numProducts * numTrials + p * numTrials + t;
+                samples[curSampleIndex] = (Sample *)calloc(1, sizeof(Sample));
+                samples[curSampleIndex] -> m1SampleId = msid1[i];
+                samples[curSampleIndex] -> m2SampleId = msid2[i];
+                samples[curSampleIndex] -> trial = t;
 
-                    // do the trial of this experiment and calculate its perfomance.
-                    ON_ERROR_LOG_AND_RETURN(products[p](m1[i], m2[i], mrBuffer, samples[curSampleIndex]), -1, "Error while doing trial %d for experiment %d, %d, %d\n", t, i, i, p);
-                    calcGflops(samples[curSampleIndex]);
-                    calcBandwidth(samples[curSampleIndex]);
+                // do the trial of this experiment and calculate its perfomance.
+                ON_ERROR_LOG_AND_RETURN(products[p](m1[i], m2[i], mrBuffer, samples[curSampleIndex]), -1, "Error while doing trial %d for experiment %d, %d, %d\n", t, i, i, p);
+                calcGflops(samples[curSampleIndex]);
+                calcBandwidth(samples[curSampleIndex]);
 
-                    progress = (curSampleIndex * 100 / (numM * numProducts * numTrials));
-                    if (progress % 5 == 0 && progress != oldProgress)
-                    {
-                        oldProgress = progress;
-                        logMsg(LOG_TAG_I, "Generated %d percent of samples\n", progress);
-                    }
+                progress = (curSampleIndex * 100 / (numM * numProducts * numTrials));
+                if (progress % 5 == 0 && progress != oldProgress)
+                {
+                    oldProgress = progress;
+                    logMsg(LOG_TAG_I, "Generated %d percent of samples\n", progress);
                 }
             }
+        }
     }
 
     return 0;

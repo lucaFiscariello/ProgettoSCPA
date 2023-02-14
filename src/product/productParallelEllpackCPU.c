@@ -28,7 +28,7 @@ int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matri
      * schedule(static):
      *  Each thread will be assigned a fixed number of iterations.
      *  Since each iteration should do the same amount of work, this should be a faster option
-     *  compared to a dynamic schedule, since the implies synchronization overhead.
+     *  compared to a dynamic schedule, since the latter implies synchronization overhead.
      * 
      * collapse(3):
      *  All for cycles are collapsed into a single loop, so its iterations
