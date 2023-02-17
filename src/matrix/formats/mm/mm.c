@@ -95,11 +95,9 @@ void reset(FILE *f){
 /**
  * Reads MarketMatrix file contained in data until it finds the first data line
 */
-int skipMetadata(DataMM *data){
+int skipMetadata(FILE *f){
 
     int c = 0;
-    FILE* f = data ->file;
-
     // skip all comment lines
     do {
         // reads first char of line
@@ -118,11 +116,11 @@ int skipMetadata(DataMM *data){
 
 /** Sets the stream contained in data to the desired line of the data section. 
  * caller must ensure that pos is in bounds.*/
-int seekdata(DataMM *data, int pos){
-    
-    ON_ERROR_LOG_AND_RETURN(skipMetadata(data), -1, "Couldn't skip metadata");
+int seekdata(FILE *f, int pos){
+
+    ON_ERROR_LOG_AND_RETURN(skipMetadata(f), -1, "Couldn't skip metadata");
     for(; pos > 0; pos --){
-        ON_ERROR_LOG_AND_RETURN(skipLine(data ->file), -1, "Couldn't skip line %d from file %s", pos, data ->filename);
+        ON_ERROR_LOG_AND_RETURN(skipLine(f), -1, "Couldn't skip line %d from file %s", pos, f);
     }
 
     return 0;
@@ -133,18 +131,18 @@ bool isSymmetric(DataMM *data)
     return mm_is_symmetric(data ->typecode) || mm_is_skew(data ->typecode);
 }
 
-int readLine(DataMM *data, int *r, int *c, double *v){
+int readLine(MM_typecode typecode, FILE* file, int *r, int *c, double *v){
 
-    if (mm_is_pattern(data ->typecode))
+    if (mm_is_pattern(typecode))
     {
-        fscanf(data ->file, "%d %d\n", r, c);
+        fscanf(file, "%d %d\n", r, c);
         *v = 1;
     }
     else 
     {
-        fscanf(data ->file, "%d %d %lg\n", r, c, v);
+        fscanf(file, "%d %d %lg\n", r, c, v);
     }
-    ON_ERROR_LOG_ERRNO_AND_RETURN(ferror(data ->file), - 1, "Couldn't read line from file %s", data ->filename);
+    ON_ERROR_LOG_ERRNO_AND_RETURN(ferror(file), - 1, "Couldn't read line from file");
 
     return 0;
 }
@@ -188,11 +186,11 @@ NotZeroElement *getNonZeroMM(Matrix *self, int pos){
 
     // Discards all lines until we reach the first data line
     reset(data ->file);
-    ON_ERROR_LOG_AND_RETURN(seekdata(data, 0), NULL, "Couldn't seek data at pos %d\n", pos);
+    ON_ERROR_LOG_AND_RETURN(seekdata(data->file, 0), NULL, "Couldn't seek data at pos %d\n", pos);
 
     // leggiamo le righe fino a quando non raggiungiamo la posizione richiesta
     for (line = 0, curPos = 0; line < data ->numValueLines && curPos <= pos; line ++, curPos ++){
-        ON_ERROR_LOG_ERRNO_AND_RETURN(readLine(data, &r, &c, &v), NULL, "Couldn't read line %d from file %s", pos, data ->filename);
+        ON_ERROR_LOG_ERRNO_AND_RETURN(readLine(data->typecode,data->file, &r, &c, &v), NULL, "Couldn't read line %d from file %s", pos, data ->filename);
         
         // special care is needed if the matrix is symmetric
         if (isSymmetric(data)){
@@ -246,11 +244,11 @@ double getMM(Matrix *self, int r, int c){
      * passati dal chiamante.
      */    
     reset(data ->file);
-    ON_ERROR_LOG_AND_RETURN(seekdata(data, 0), NAN, "Couldn't seek data\n");
+    ON_ERROR_LOG_AND_RETURN(seekdata(data->file, 0), NAN, "Couldn't seek data\n");
     for (int line = 0; line < data ->numValueLines; line ++){
         
         // Se è pattern devo leggere solo riga e colonna, altrimenti devo anche leggere il valore non-zero
-        ON_ERROR_LOG_ERRNO_AND_RETURN(readLine(data, &curR, &curC, &curVal), NAN, "Couldn't read line %d from file %s", line, data ->filename);
+        ON_ERROR_LOG_ERRNO_AND_RETURN(readLine(data->typecode,data->file, &curR, &curC, &curVal), NAN, "Couldn't read line %d from file %s", line, data ->filename);
 
         if (curR == r && curC == c){
             return curVal;  // beccato! ;)
@@ -281,9 +279,9 @@ void printMM(Matrix *self){
     printf("%-6s%-6s%-6s\n", "row", "col", "val");
     
     reset(data ->file);
-    ON_ERROR_LOG_AND_RETURN(seekdata(data, 0), , "Couldn't skip metadata\n");
+    ON_ERROR_LOG_AND_RETURN(seekdata(data->file, 0), , "Couldn't skip metadata\n");
     for (int line = 0; line < data ->numValueLines; line ++){
-        ON_ERROR_LOG_ERRNO_AND_RETURN(readLine(data, &r, &c, &v), , "Couldn't read line %d from file %s", line, data ->filename);
+        ON_ERROR_LOG_ERRNO_AND_RETURN(readLine(data->typecode,data->file, &r, &c, &v), , "Couldn't read line %d from file %s", line, data ->filename);
         printf("%-6d%-6d%-6f\n", r - 1, c - 1, v);
     }
 }
