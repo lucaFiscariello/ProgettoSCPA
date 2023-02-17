@@ -20,9 +20,17 @@
  * Matrix file names to use in the experiments as sparse matrices
  */
 const char *MATRIX_FILE_NAMES[] = {
-    "/data/dlaprova/matrix-multiVector-product/matrixFile/Trec5.mtx",
-    "/data/dlaprova/matrix-multiVector-product/matrixFile/cage4.mtx",
-    "/data/dlaprova/matrix-multiVector-product/matrixFile/bcspwr01.mtx",
+    "matrixFile/bcspwr01.mtx",
+    "matrixFile/Trec5.mtx",
+    "matrixFile/cage4.mtx",
+    "matrixFile/bcspwr01.mtx",
+    "matrixFile/west2021.mtx",
+    "matrixFile/olm1000.mtx",
+    "matrixFile/thermal1.mtx",
+    "matrixFile/mac_econ_fwd500.mtx",
+    "matrixFile/cant.mtx",
+    "matrixFile/nlpkkt80.mtx",
+ 
     // more matrix file names here ...
 };
 const int NUM_MATRIX_FILE_NAMES = sizeof(MATRIX_FILE_NAMES) / sizeof(void *); // sizeof su array sullo stack restituisce la memoria occupata dall'array in bytes. (NON FUNZIONA SU POINTERS!). Inoltre uso sizeof(void *) perché i puntatori sono tutti grandi uguale.
@@ -60,9 +68,9 @@ const int NUM_MV_WIDTHS = sizeof(MV_WIDTHS) / sizeof(int);
  * TODO: read product names from file and map them to the corresponding function
 */
 int (*PRODUCTS[])(Matrix *, Matrix *, Matrix *, Sample *) = {
-    productMatrixMatrixSerial,
-    //productMatrixMatrixParallelEllpack,
-    productEllpackMultivectorParallelCPU,
+    //productMatrixMatrixSerial,
+    productMatrixMatrixParallelEllpack,
+    //productEllpackMultivectorParallelCPU,
     // more product functions here ...
 };
 const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
@@ -72,7 +80,7 @@ const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
 /**
  * Number of trials to run for each experiment
 */
-const int TRIALS = 1000;
+const int TRIALS = 1;
 
 /**
  * Seed da usare per la generazione dei numeri casuali
@@ -238,14 +246,15 @@ int main(int argc, char *argv[]){
 
     for (int i = 0; i < NUM_MATRIX_FILE_NAMES; i++){
         
-        // legge matrice sparsa da file
-        mmMatrix = newMatrixMM((MATRIX_FILE_NAMES[i]));
-
         // per ogni formato desiderato, converte la matrice letta in quel formato
         for (int f = 0; f < NUM_MATRIX_FORMATS; f ++){
             currentFormat = (Matrix *)MATRIX_FORMATS[f];
             mBuffer = currentFormat ->cloneEmpty(currentFormat);
-            convert(mmMatrix, mBuffer);
+            
+            convertFromFile(MATRIX_FILE_NAMES[i], mBuffer);
+
+            logMsg(LOG_TAG_I, "Fine conversione %s\n",MATRIX_FILE_NAMES[i]);
+
 
             // costruisce un corrispondente oggetto MatrixSampleID
             currentM1sid = newMatrixSampleID(

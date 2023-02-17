@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+
+
 /**
  * The representation of a MatrixMarket sparse matrix data.
 */
@@ -53,5 +55,10 @@ char *objectToString(MM_typecode matcode);
 char *sparseDenseToSpring(MM_typecode matcode);
 char *dataTypeToString(MM_typecode matcode);
 char *storageSchemeToString(MM_typecode matcode);
+int skipLine(FILE *f);
+void reset(FILE *f);
+int skipMetadata(FILE *f);
+int seekdata(FILE *f, int pos);
+int readLine(MM_typecode typecode, FILE* file, int *r, int *c, double *v);
 
 #endif // MM_H

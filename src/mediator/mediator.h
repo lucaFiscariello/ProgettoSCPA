@@ -18,4 +18,10 @@ void convert(Matrix *from, Matrix *to);
 */
 void convert_dense_too(Matrix *from, Matrix *to);
 
+
+/**
+ * Converte una matrice memorizzata in un file in un formato specifico passato in input.
+*/
+void convertFromFile(const char *filename, Matrix *matrixTo);
+
 #endif 
