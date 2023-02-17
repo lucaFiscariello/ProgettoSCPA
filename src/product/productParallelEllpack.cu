@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 #include <cuda_runtime.h>  // For CUDA runtime API
 #include <helper_cuda.h>  // For checkCudaError macro
 #include <helper_timer.h>  // For CUDA SDK timers
@@ -47,11 +48,17 @@ __global__ void gpuMatrixMultiVectorELL(int rowsA, int colsA, int colsMulti, con
     // store the sub-matrix of B
     __shared__ float Bs[BD][BD];
 
+    int pos = a + colsA * ty + tx;
     // Load the matrices from device memory
     // to shared memory; each thread loads
     // one element of each matrix
-    As[ty][tx] = A_values[a + colsA * ty + tx];
-    Bs[ty][tx] = multiVect[b + colsMulti * ty + A_cols[a + colsA * ty + tx]];
+    As[ty][tx] = A_values[pos];
+
+    //Gestione del padding
+    if(pos>rowsA*colsA)
+        Bs[ty][tx] = multiVect[b + colsMulti * ty + A_cols[pos]];
+    else
+        Bs[ty][tx]=0;
 
     // Synchronize to make sure the matrices are loaded
     __syncthreads();
@@ -64,6 +71,7 @@ __global__ void gpuMatrixMultiVectorELL(int rowsA, int colsA, int colsMulti, con
       Csub += As[ty][k] * Bs[k][tx];
     }
 
+
     // Synchronize to make sure that the preceding
     // computation is done before loading two new
     // sub-matrices of A and B in the next iteration
@@ -71,6 +79,7 @@ __global__ void gpuMatrixMultiVectorELL(int rowsA, int colsA, int colsMulti, con
 
     int c = colsMulti * BD * by + BD * bx;
     y[c + colsMulti * ty + tx] = Csub;
+
   }
 
 
@@ -142,6 +151,7 @@ int productMatrixMatrixParallelEllpack(Matrix *matrix1, Matrix *matrix2, Matrix 
     double  *d_y;
     int     *d_A_cols;
 
+
     checkCudaErrors(cudaMalloc((void**) &d_A_values , dimMatrix*sizeof(double)));
     checkCudaErrors(cudaMalloc((void**) &d_Multi_Vec, dimMulti *sizeof(double)));
     checkCudaErrors(cudaMalloc((void**) &d_y        , dimResult*sizeof(double)));
@@ -155,7 +165,7 @@ int productMatrixMatrixParallelEllpack(Matrix *matrix1, Matrix *matrix2, Matrix 
 
     // ---------------------- GPU ---------------------- //
 
-    dim3 GRID_DIM(matrix2->cols / BLOCK_DIM.x, dataEllpack->rowsSubMat / BLOCK_DIM.y);
+    dim3 GRID_DIM(ceil(matrix2->cols / BLOCK_DIM.x), ceil(dataEllpack->rowsSubMat / BLOCK_DIM.y));
 
     clock_gettime(CLOCK_REALTIME,&tStart);
     gpuMatrixMultiVectorELL<<<GRID_DIM, BLOCK_DIM >>>(dataEllpack->rowsSubMat, dataEllpack->colsSubMat,matrix2->cols ,d_A_values, d_A_cols, d_Multi_Vec,d_y);
