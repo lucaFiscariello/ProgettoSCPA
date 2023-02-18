@@ -35,6 +35,9 @@ int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matri
      *  are distributed among the threads. This is possibile because each loop has a
      *  fixed number of iterations indipendent from other loops.
     */
+   logMsg(LOG_TAG_D, "rowsSubMat: %d, colsSubMat: %d, cols:%d \n", ellpackData ->rowsSubMat, ellpackData ->colsSubMat, matrix2 ->cols);
+    int total = ellpackData ->rowsSubMat * matrix2 ->cols * ellpackData ->colsSubMat;
+    int current;
     #pragma omp parallel for default(shared) schedule(static) collapse(3) 
     for (int r1 = 0; r1 < ellpackData ->rowsSubMat; r1++){
         for (int c2 = 0; c2 < matrix2 -> cols; c2 ++){
@@ -48,17 +51,25 @@ int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matri
                 */
                 #pragma omp atomic
                 resultData[r1 * matrix2 ->cols + c2] += ellpackData ->matValues[r1][cSub] * multivectorData[ellpackData ->matCols[r1][cSub]][c2];
+                current = r1 * matrix2 ->cols * ellpackData ->colsSubMat + c2 * ellpackData ->colsSubMat + cSub + 1;
+                if(current % 100000 == 0 || current == total)
+                    logMsg(LOG_TAG_D, "Thread %d: done %d/%d calculations\n", omp_get_thread_num(), current  ,total);
             }
         }
     }
+
+    logMsg(LOG_TAG_D, "calculations completed\n");
     
     // stop measuring and write the measurements down in the sample
     clock_gettime(CLOCK_MONOTONIC, &end);
     sample ->execTimeSecs = end.tv_sec - start.tv_sec;
     sample ->execTimeNsecs = end.tv_nsec - start.tv_nsec;
+    logMsg(LOG_TAG_D, "elapsed time registered in sample\n");
 
     // write the result in the result matrix
     convert_dense_too(result, mResult);
+    freeArrayDenseMatrix(result);
+    logMsg(LOG_TAG_D, "conversion completed\n");
 
     return 0;
 }

@@ -2,7 +2,18 @@
 #include "matrix/formats/matrixEllpack.h"
 #include <malloc.h>
 #include "logger/logger.h"
+#include <string.h>
 
+/**
+ * Same as realloc but it also sets to zero the new memory allocated.
+*/
+void *recalloc(void *ptr, size_t oldNum, size_t newNum, size_t elemSize){
+
+    void *newPtr = reallocarray(ptr, newNum, elemSize);
+    ON_ERROR_LOG_ERRNO_AND_RETURN(newPtr == NULL, newPtr, "realloc failed");
+    memset(newPtr + (oldNum * elemSize), 0, (newNum - oldNum) * elemSize);
+    return newPtr;
+}
 
 /**
  * Funzione che permette di salvare un valore in una specifica riga o colonna della matrice.
@@ -18,9 +29,9 @@ int putEllpack(Matrix *self, int r, int c, double val){
     if(data->rowsSubMat <= r){
         
         //Se non ho abbastanza righe rialloco la matrice aggiungendo il numero di righe necesssarie
-        data->matValues  = (double **)realloc(data->matValues, sizeof(double*)*(r+1));
-        data->matCols    = (int **)realloc(data->matCols,   sizeof(int*)*(r+1));
-        data->nextInsert = (int *)realloc(data->nextInsert,sizeof(int)*(r+1));
+        data->matValues  = (double **)recalloc(data->matValues, data ->rowsSubMat, (r+1), sizeof(double*));
+        data->matCols    = (int **)recalloc(data->matCols, data ->rowsSubMat, (r+1), sizeof(int*));
+        data->nextInsert = (int *)recalloc(data->nextInsert, data ->rowsSubMat, (r+1) , sizeof(int));
         
         //Alloco le colonne associate alle righe appena aggiunte e pulisco le nuove caselle di nextInsert
         for(int k=data->rowsSubMat; k<r+1; k++ ){
@@ -30,7 +41,6 @@ int putEllpack(Matrix *self, int r, int c, double val){
         }
 
         data->rowsSubMat=r+1;
-        //self->rows = data->rowsSubMat;
 
     }
 
@@ -38,13 +48,13 @@ int putEllpack(Matrix *self, int r, int c, double val){
     //Controllo se ho spazio nella riga in cui voglio scrivere un nuovo valore.
     if(data->nextInsert[r] == data->colsSubMat){
 
+        int oldCols = data->colsSubMat;
         data->colsSubMat++;
-   //     self->cols = data->colsSubMat;
 
         //Se ho riempito tutta la riga rialloco le matrici aggiungendo una nuova colonna
         for(int i=0; i < data->rowsSubMat; i++){
-            data->matValues[i] =  (double *)realloc(data->matValues[i], sizeof(double)*(data->colsSubMat));
-            data->matCols[i]   =  (int *)realloc(data->matCols[i],   sizeof(int)*(data->colsSubMat));
+            data->matValues[i] =  (double *)recalloc(data->matValues[i], oldCols, (data->colsSubMat), sizeof(double));
+            data->matCols[i]   =  (int *)recalloc(data->matCols[i], oldCols, (data->colsSubMat), sizeof(int));
         }
 
         

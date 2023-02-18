@@ -69,9 +69,15 @@ void convertFromFile(const char *filename, Matrix *matrixTo){
 
 void convert_dense_too(Matrix *from, Matrix *to){
 
+    int total = from->rows * from->cols;
+    int current = 0;
+    
     for (int r = 0; r < from->rows; r++){
         for (int c = 0; c < from->cols; c++){
+            current = r * from->cols + c + 1;
             to->put(to, r, c, from->get(from, r, c));
+            if (current % 10000 == 0 || current == total)
+            logMsg(LOG_TAG_D, "Converting %d/%d\n", current, total);
         }
     }
 }
