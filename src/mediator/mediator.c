@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "logger/logger.h"
-#include "matrix/formats/mm/mm.h"
 #include <math.h>
 
 
@@ -28,18 +27,14 @@ void convert(Matrix *from, Matrix *to){
 }
 
 
-void convertFromFile(const char *filename, Matrix *matrixTo){
+void convertFromMM(DataMM *dataMM, Matrix *matrixTo){
 
-    FILE* fileFrom = fopen(filename, "a+");
-    MM_typecode typecode;
-    int rows,cols,numValueLines;
-    mm_read_banner(fileFrom, &(typecode));
-    mm_read_mtx_crd_size(fileFrom, &(rows), &(cols), &(numValueLines));
-
+    FILE* fileFrom = dataMM ->file;
+    int numValueLines = dataMM ->numValueLines;
+    char* filename = dataMM ->filename;
     int curR = -1, curC = - 1;
     double curVal = NAN;
 
-    
     reset(fileFrom);
     ON_ERROR_LOG_AND_RETURN(seekdata(fileFrom, 0), 0, "Couldn't seek data\n");
 
@@ -47,23 +42,21 @@ void convertFromFile(const char *filename, Matrix *matrixTo){
     for (int line = 0; line <numValueLines; line ++){
         
         // Se è pattern devo leggere solo riga e colonna, altrimenti devo anche leggere il valore non-zero
-        ON_ERROR_LOG_ERRNO_AND_RETURN(readLine(typecode, fileFrom, &curR, &curC, &curVal), NAN, "Couldn't read line %d from file %s", line, filename);
+        ON_ERROR_LOG_ERRNO_AND_RETURN(readLine(dataMM ->typecode, fileFrom, &curR, &curC, &curVal), NAN, "Couldn't read line %d from file %s", line, filename);
         matrixTo->put(matrixTo,--curR,--curC,curVal);
 
         // Se la matrice è simmetrica o skew memorizzo nel formato anche i valori simmetrici
-        if (mm_is_skew(typecode) && curC != curR){
+        if (mm_is_skew(dataMM ->typecode) && curC != curR){
             matrixTo->put(matrixTo,curC,curR,-curVal);
         }
 
-        else if(mm_is_symmetric(typecode)&& curC != curR){
+        else if(mm_is_symmetric(dataMM ->typecode)&& curC != curR){
             matrixTo->put(matrixTo,curC,curR,curVal);
         }
 
     }
 
     return 0;   
-
-
 
 }
 
