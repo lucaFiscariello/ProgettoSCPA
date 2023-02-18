@@ -155,9 +155,7 @@ int doExperiments(
             // to do an experiment, we must cycle through all its trials
             for (int t = 0; t < numTrials; t ++){
                 
-                // reset mr buffer entry with pristine COO matrices
-                freeMatrixCOO(mrBuffer);                    
-                mrBuffer = newMatrixCOO();
+                mrBuffer = newMatrixEllpack();
                 
                 // initialize sample for the trial of this experiment
                 curSampleIndex = i * numProducts * numTrials + p * numTrials + t;
@@ -172,11 +170,13 @@ int doExperiments(
                 calcBandwidth(samples[curSampleIndex]);
 
                 progress = (curSampleIndex * 100 / (numM * numProducts * numTrials));
-                if (progress % 5 == 0 && progress != oldProgress)
+                if (progress != oldProgress)
                 {
                     oldProgress = progress;
                     logMsg(LOG_TAG_I, "Generated %d percent of samples\n", progress);
                 }
+
+                freeMatrixEllpack(mrBuffer);                    
             }
         }
     }
