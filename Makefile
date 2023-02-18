@@ -24,7 +24,7 @@ CC=nvcc
 INCLUDES=-I./src -I${cudaPath}/samples/common/inc
 LINK=-lm
 DEBUG=-g -G -DLOG_LEVEL=3
-FAST=-O3 --use_fast_math -DLOG_LEVEL=1
+FAST= --use_fast_math -DLOG_LEVEL=1
 CPP=-x c++ --compiler-options -fpermissive# usare anche per compilare i file .c
 CUDA=-x cu
 OPENMP=--compiler-options -fopenmp
