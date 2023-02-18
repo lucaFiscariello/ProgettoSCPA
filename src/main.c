@@ -245,7 +245,6 @@ int main(int argc, char *argv[]){
     logMsg(LOG_TAG_I, "Random number generator initialized\n");
 
     for (int i = 0; i < NUM_MATRIX_FILE_NAMES; i++){
-        
         // per ogni formato desiderato, converte la matrice letta in quel formato
         for (int f = 0; f < NUM_MATRIX_FORMATS; f ++){
             currentFormat = (Matrix *)MATRIX_FORMATS[f];
