@@ -1,5 +1,7 @@
 #include "product/product.h"
 #include <stdlib.h>
+#include <stdio.h>
+
 
 double calcGflops(Sample *self){
 
@@ -8,7 +10,9 @@ double calcGflops(Sample *self){
     time_t execTimeSecs = self->execTimeSecs;
     long execTimeNsecs = self->execTimeNsecs;
 
-    self ->gflops = ((2 * numNonZero * nMVCols) / (execTimeSecs + execTimeNsecs *1e-9)) * 1e-9;
+
+    self ->gflops = (double) ((2 * numNonZero * nMVCols) / (execTimeSecs + execTimeNsecs *1e-9)) * 1e-9;
+
     return self->gflops;
 }
 
