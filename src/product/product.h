@@ -122,4 +122,6 @@ int productMatrixMatrixParallelEllpack(Matrix *matrix1, Matrix *matrix2, Matrix 
 */
 int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matrix *mResult, Sample *sample);
 
+int productCsrMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matrix *mResult, Sample *sample);
+
 #endif

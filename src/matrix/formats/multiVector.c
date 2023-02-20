@@ -10,7 +10,6 @@ int putMultiVector(Matrix *self, int r, int c, double val){
     
     double** data = (double**)self->data;
     data[r][c] = val;
-
     return 0;
  
 }

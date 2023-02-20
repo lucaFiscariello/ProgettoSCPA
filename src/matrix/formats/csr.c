@@ -119,6 +119,7 @@ int putCSR(Matrix *self, int r, int c, double value){
         data ->values = (double *)reallocarray(data ->values, data ->valuesCapacity + 1, sizeof(double));
         data ->columns = (int *)reallocarray(data ->columns, data ->valuesCapacity + 1, sizeof(int));
         data ->valuesCapacity ++;
+        self->cols = data ->valuesCapacity;
     }
     
     // we could need to shift the columns of the next row to the right (not always)

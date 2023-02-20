@@ -1,6 +1,7 @@
 #include "logger/logger.h"
 #include "matrix/matrix.h"
 #include "matrix/formats/matrixEllpack.h"
+#include "matrix/formats/csr.h"
 #include "matrix/formats/multiVector.h"
 #include "matrix/formats/mm/mm.h"
 #include "product/product.h"
@@ -20,6 +21,7 @@
  * Matrix file names to use in the experiments as sparse matrices
  */
 const char *MATRIX_FILE_NAMES[] = {
+    
     "matrixFile/bcspwr01.mtx",
     "matrixFile/Trec5.mtx",
     "matrixFile/cage4.mtx",
@@ -30,7 +32,25 @@ const char *MATRIX_FILE_NAMES[] = {
     "matrixFile/mac_econ_fwd500.mtx",
     "matrixFile/cant.mtx",
     "matrixFile/nlpkkt80.mtx",
- 
+    "matrixFile/adder_dcop_32.mtx",
+    "matrixFile/af_1_k101.mtx",
+    "matrixFile/af23560.mtx",
+    "matrixFile/amazon0302.mtx",
+    "matrixFile/bcsstk17.mtx",
+    "matrixFile/cavity10.mtx",
+    "matrixFile/dc1.mtx",
+    "matrixFile/FEM_3D_thermal1.mtx",
+    "matrixFile/lung2.mtx",
+    "matrixFile/mcfe.mtx",
+    "matrixFile/mhd4800a.mtx",
+    "matrixFile/olafu.mtx",
+    "matrixFile/PR02R.mtx",
+    "matrixFile/raefsky2.mtx",
+    "matrixFile/rdist2.mtx",
+    "matrixFile/roadNet-PA.mtx",
+    "matrixFile/thermal2.mtx",
+    "matrixFile/thermomech_TK.mtx",
+    "matrixFile/webbase-1M.mtx"
     // more matrix file names here ...
 };
 const int NUM_MATRIX_FILE_NAMES = sizeof(MATRIX_FILE_NAMES) / sizeof(void *); // sizeof su array sullo stack restituisce la memoria occupata dall'array in bytes. (NON FUNZIONA SU POINTERS!). Inoltre uso sizeof(void *) perché i puntatori sono tutti grandi uguale.
@@ -44,7 +64,8 @@ const int NUM_MATRIX_FILE_NAMES = sizeof(MATRIX_FILE_NAMES) / sizeof(void *); //
  * Dato che per ora non abbiamo un modo per farlo, per ora lasciamo solo ELLPACK.
 */
 const Matrix *MATRIX_FORMATS[] = {
-    newMatrixEllpack(),
+    //newMatrixEllpack(),
+    newMatrixCSR()
 };
 const int NUM_MATRIX_FORMATS = sizeof(MATRIX_FORMATS) / sizeof(void *);
 
@@ -69,8 +90,9 @@ const int NUM_MV_WIDTHS = sizeof(MV_WIDTHS) / sizeof(int);
 */
 int (*PRODUCTS[])(Matrix *, Matrix *, Matrix *, Sample *) = {
     //productMatrixMatrixSerial,
-    productMatrixMatrixParallelEllpack,
+    //productMatrixMatrixParallelEllpack,
     //productEllpackMultivectorParallelCPU,
+    productCsrMultivectorParallelCPU
     // more product functions here ...
 };
 const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
@@ -80,7 +102,7 @@ const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
 /**
  * Number of trials to run for each experiment
 */
-const int TRIALS = 1;
+const int TRIALS = 5;
 
 /**
  * Seed da usare per la generazione dei numeri casuali
@@ -254,7 +276,7 @@ int main(int argc, char *argv[]){
             currentFormat = (Matrix *)MATRIX_FORMATS[f];
             mBuffer = currentFormat ->cloneEmpty(currentFormat);
             
-            convertFromFile(mmMatrix ->data, mBuffer);
+            convertFromMM(mmMatrix ->data, mBuffer);
 
             logMsg(LOG_TAG_I, "Fine conversione %s\n",MATRIX_FILE_NAMES[i]);
 

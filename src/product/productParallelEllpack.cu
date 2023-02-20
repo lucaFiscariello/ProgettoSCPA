@@ -218,8 +218,14 @@ int productMatrixMatrixParallelEllpack(Matrix *matrix1, Matrix *matrix2, Matrix 
     convertToMatrixFormat(h_y, mResult); 
 
     sample->execTimeSecs = 0;
-    sample->execTimeNsecs = time*10000;
+    sample->execTimeNsecs = time*1000000;
     sample->productName = (char *)__func__;
+
+    cudaFree(d_y);
+    cudaFree(d_A_values);
+    cudaFree(d_Multi_Vec);
+    cudaFree(d_A_cols);
+
     return 0;
 }
 
