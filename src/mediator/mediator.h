@@ -2,6 +2,7 @@
 #define MEDIATOR_H
 
 #include "matrix/matrix.h"
+#include "matrix/formats/mm/mm.h"
 
 
 /**
@@ -20,8 +21,10 @@ void convert_dense_too(Matrix *from, Matrix *to);
 
 
 /**
- * Converte una matrice memorizzata in un file in un formato specifico passato in input.
+ * Converte una matrice MatrixMarket in un formato specifico passato in input.
+ * È sensibilmente più veloce delle altre varianti di convert(), ma funziona solo
+ * con matrici in formato MatrixMarket.
 */
-void convertFromFile(const char *filename, Matrix *matrixTo);
+void convertFromMM(DataMM *dataMM, Matrix *matrixTo);
 
 #endif 
