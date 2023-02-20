@@ -205,9 +205,9 @@ int printSamplesToCSV(int numSamples, Sample *samples[], char *filename){
     //Stampo un sample per ogni riga
     for(int i=0; i< numSamples; i++){
 
-        fprintf(csv,"%ld,",samples[i]->execTimeNsecs * (samples[i]->execTimeSecs * 1e9));
+        fprintf(csv,"%ld,",samples[i]->execTimeNsecs + (samples[i]->execTimeSecs * 1e9));
         fprintf(csv,"%s,",samples[i]->productName);
-        fprintf(csv,"%f,",samples[i]->gflops);
+        fprintf(csv,"%lf,",samples[i]->gflops);
         fprintf(csv,"%f,",samples[i]->bandwidth);
         fprintf(csv,"%ld,",samples[i]->m1SampleId->numElements);
         fprintf(csv,"%ld,",samples[i]->m1SampleId->numBytes);
@@ -251,7 +251,6 @@ int main(int argc, char *argv[]){
             mBuffer = currentFormat ->cloneEmpty(currentFormat);
             
             convertFromFile(MATRIX_FILE_NAMES[i], mBuffer);
-
             logMsg(LOG_TAG_I, "Fine conversione %s\n",MATRIX_FILE_NAMES[i]);
 
 
@@ -272,7 +271,7 @@ int main(int argc, char *argv[]){
                 
                 // costruisce un oggetto MatrixSampleID per il mv
                 currentM2sid = newMatrixSampleID(
-                    currentMv ->rows * currentMv ->cols,
+                     MV_WIDTHS[w],
                     currentMv ->getSize(currentMv),
                     (char *)calloc(128, sizeof(char)),
                     currentMv ->formatName
