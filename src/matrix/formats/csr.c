@@ -124,6 +124,7 @@ int putCSR(Matrix *self, int r, int c, double value){
     
     // we could need to shift the columns of the next row to the right (not always)
     bool hasShifted = shiftRight(data ->columns, data ->valuesCapacity, endColIndex, sizeof(int));
+    shiftRight(data ->values, data ->valuesCapacity, endColIndex, sizeof(double));
     if (hasShifted){
         // if we actually shifted, we must adjust the firstColOfRowIndexes array
         for (int i = r + 1; i < data ->numCompressedRows - 1; i ++){

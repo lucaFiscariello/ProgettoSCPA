@@ -29,10 +29,10 @@ const char *MATRIX_FILE_NAMES[] = {
     //matrixFile/Cube_Coup_dt0.mtx,
     
     
-    "matrixFile/bcspwr01.mtx",
-    "matrixFile/Trec5.mtx",
-    "matrixFile/cage4.mtx",
-    "matrixFile/bcspwr01.mtx",
+    //"matrixFile/bcspwr01.mtx",
+    //"matrixFile/Trec5.mtx",
+    //"matrixFile/cage4.mtx",
+    //"matrixFile/bcspwr01.mtx",
     "matrixFile/west2021.mtx",
     "matrixFile/olm1000.mtx",
     "matrixFile/thermal1.mtx",
@@ -111,7 +111,7 @@ const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
 /**
  * Number of trials to run for each experiment
 */
-const int TRIALS = 20;
+const int TRIALS = 5;
 
 /**
  * Seed da usare per la generazione dei numeri casuali
@@ -142,7 +142,7 @@ Matrix *craftUniformMultiVectorFromMatrix(Matrix *m, int k, double minVal, doubl
 }
 
 double getVarianceNotZeroRows(Matrix *self){
-    int* allNotZeroRowsNumber = calloc(self->rows, sizeof(int));
+    int* allNotZeroRowsNumber = (int *)calloc(self->rows, sizeof(int));
 
     for(int i=0; i<self->numNonZero; i++){
         allNotZeroRowsNumber[self->getNonZero(self,i)->row]++;
@@ -219,9 +219,6 @@ int doExperiments(
                 DataEllpack *data =(DataEllpack *) m1[i]->data;
                 samples[curSampleIndex] ->paddingIndicator = (double)(m1[i]->numNonZero/m1[i]->rows)/data->colsSubMat;
                 samples[curSampleIndex] ->varNotZeroRows = var;
-
-                printf("%f\n",var);
-
 
                 // do the trial of this experiment and calculate its perfomance.
                 ON_ERROR_LOG_AND_RETURN(products[p](m1[i], m2[i], mrBuffer, samples[curSampleIndex]), -1, "Error while doing trial %d for experiment %d, %d, %d\n", t, i, i, p);
