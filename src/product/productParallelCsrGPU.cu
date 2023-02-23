@@ -48,18 +48,12 @@ __global__ void csrMultivectorKernel(int numSparseRows, int numNonZero,
     row = threadIdx.x + blockIdx.x * blockDim.x;
     mvCol = threadIdx.y + blockIdx.y * blockDim.y;
 
-    /**
-     * FIXME: This causes divergence. We should zero-pad the number of rows and cols
-     * to a multiple of BD.
-    */
-    if (row < numSparseRows && mvCol < mvCols){
-        startCol = firstColOfRowIndexes[row];
-        endCol = firstColOfRowIndexes[row + 1];
-        for (int c = startCol; c < endCol; c++){
-            partial += values[c] * getPitched(mv, columns[c], mvCol, mv_pitch, double);
-        }
-        getPitched(result, row, mvCol, result_pitch, double) = partial;
+    startCol = firstColOfRowIndexes[row];
+    endCol = firstColOfRowIndexes[row + 1];
+    for (int c = startCol; c < endCol; c++){
+        partial += values[c] * getPitched(mv, columns[c], mvCol, mv_pitch, double);
     }
+    getPitched(result, row, mvCol, result_pitch, double) = partial;
 }
 
 int productCsrMultivectorParallelGPU(Matrix *matrix1, Matrix *matrix2, Matrix *mResult,
@@ -91,6 +85,8 @@ int productCsrMultivectorParallelGPU(Matrix *matrix1, Matrix *matrix2, Matrix *m
     cudaEvent_t start, stop;
     cudaStream_t stream = NULL; // default stream
     float execTimeMsecs;
+    size_t d_csr_firstColOfRowIndexes_capacity, d_csr_columns_capacity, d_csr_values_capacity,
+     d_mv_width_capacity, d_mv_height_capacity, d_result_width_capacity, d_result_height_capacity;
 
     sample ->productName = (char *)__func__;
 
@@ -108,11 +104,25 @@ int productCsrMultivectorParallelGPU(Matrix *matrix1, Matrix *matrix2, Matrix *m
     
     // ---------------------- Device memory initialisation ---------------------- //
     
-    checkCudaErrors(cudaMalloc((void **) &d_csr_firstColOfRowIndexes, (sizeof(int) * csrData->numCompressedRows)));
-    checkCudaErrors(cudaMalloc((void **) &d_csr_columns, sizeof(int) * matrix1 -> numNonZero));
-    checkCudaErrors(cudaMalloc((void **) &d_csr_values, sizeof(double) * matrix1 -> numNonZero));
-    checkCudaErrors(cudaMallocPitch((void **) &d_result, &d_result_pitch, matrix2 ->cols * sizeof(double), matrix1 -> rows));
-    checkCudaErrors(cudaMallocPitch((void **) &d_mv, &d_mv_pitch, matrix2 ->cols * sizeof(double), matrix2 -> rows));
+    d_csr_firstColOfRowIndexes_capacity = adjustToWarpSize(sizeof(int) * csrData->numCompressedRows);
+    d_csr_columns_capacity = adjustToWarpSize(sizeof(int) * matrix1 -> numNonZero);
+    d_csr_values_capacity = adjustToWarpSize(sizeof(double) * matrix1 -> numNonZero);
+    d_mv_width_capacity = adjustToWarpSize(matrix2 ->cols * sizeof(double));
+    d_mv_height_capacity = adjustToWarpSize(matrix2 -> rows);
+    d_result_width_capacity = adjustToWarpSize(matrix2 ->cols * sizeof(double));
+    d_result_height_capacity = adjustToWarpSize(matrix1 -> rows);
+    
+    checkCudaErrors(cudaMalloc((void **) &d_csr_firstColOfRowIndexes, d_csr_firstColOfRowIndexes_capacity));
+    checkCudaErrors(cudaMalloc((void **) &d_csr_columns, d_csr_columns_capacity));
+    checkCudaErrors(cudaMalloc((void **) &d_csr_values, d_csr_values_capacity));
+    checkCudaErrors(cudaMallocPitch((void **) &d_mv, &d_mv_pitch, d_mv_width_capacity, d_mv_height_capacity));
+    checkCudaErrors(cudaMallocPitch((void **) &d_result, &d_result_pitch, d_result_width_capacity, d_result_height_capacity));
+    
+    checkCudaErrors(cudaMemset(d_csr_firstColOfRowIndexes, 0, d_csr_firstColOfRowIndexes_capacity));
+    checkCudaErrors(cudaMemset(d_csr_columns, 0, d_csr_columns_capacity));
+    checkCudaErrors(cudaMemset(d_csr_values, 0, d_csr_values_capacity));
+    checkCudaErrors(cudaMemset2D(d_mv, d_mv_pitch, 0, d_mv_width_capacity, d_mv_height_capacity));
+    checkCudaErrors(cudaMemset2D(d_result, d_result_pitch, 0, d_result_width_capacity, d_result_height_capacity));
     
     // we enlarge bank size to make enough room to store at least a double in each bank
     // https://developer.nvidia.com/blog/using-shared-memory-cuda-cc/
