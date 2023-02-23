@@ -124,4 +124,10 @@ int productEllpackMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matri
 
 int productCsrMultivectorParallelCPU(Matrix *matrix1, Matrix *matrix2, Matrix *mResult, Sample *sample);
 
+/**
+ * Product between a sparse matrix in CSR format and a multivector
+ * implemented in parallel on the GPU using CUDA.
+*/
+int productCsrMultivectorParallelGPU(Matrix *matrix1, Matrix *matrix2, Matrix *mResult, Sample *sample);
+
 #endif

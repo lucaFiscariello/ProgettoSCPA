@@ -20,7 +20,8 @@ typedef struct csr_data{
     int *firstColOfRowIndexes;
 
     /**
-     * Num of rows stored in the matrix.
+     * Num of rows stored in the matrix. (Plus the last value, which is not
+     * a row, but just the number of non-zero elements)
     */
     int numCompressedRows;
 
