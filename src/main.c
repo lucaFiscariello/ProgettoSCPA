@@ -32,7 +32,6 @@ const char *MATRIX_FILE_NAMES[] = {
     "matrixFile/bcspwr01.mtx",
     "matrixFile/Trec5.mtx",
     "matrixFile/cage4.mtx",
-    /*
     "matrixFile/bcspwr01.mtx",
     "matrixFile/west2021.mtx",
     "matrixFile/olm1000.mtx",
