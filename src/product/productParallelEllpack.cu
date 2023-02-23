@@ -8,8 +8,7 @@
 #include <helper_cuda.h>  // For checkCudaError macro
 #include <helper_timer.h>  // For CUDA SDK timers
 
-#define BD 32
-
+const int BD = 32;
 const dim3 BLOCK_DIM(BD,BD);
 
 

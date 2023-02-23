@@ -6,3 +6,4 @@ debug/
 **/*.csv
 matrixFile
 callgrind*
+*.nvprof

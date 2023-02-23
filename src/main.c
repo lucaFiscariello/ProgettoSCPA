@@ -32,6 +32,7 @@ const char *MATRIX_FILE_NAMES[] = {
     "matrixFile/bcspwr01.mtx",
     "matrixFile/Trec5.mtx",
     "matrixFile/cage4.mtx",
+    /*
     "matrixFile/bcspwr01.mtx",
     "matrixFile/west2021.mtx",
     "matrixFile/olm1000.mtx",
@@ -100,7 +101,8 @@ int (*PRODUCTS[])(Matrix *, Matrix *, Matrix *, Sample *) = {
     //productMatrixMatrixSerial,
     //productMatrixMatrixParallelEllpack,
     //productEllpackMultivectorParallelCPU,
-    productCsrMultivectorParallelCPU
+    //productCsrMultivectorParallelCPU
+    productCsrMultivectorParallelGPU
     // more product functions here ...
 };
 const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
@@ -110,7 +112,7 @@ const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
 /**
  * Number of trials to run for each experiment
 */
-const int TRIALS = 5;
+const int TRIALS = 20;
 
 /**
  * Seed da usare per la generazione dei numeri casuali
@@ -318,7 +320,7 @@ int main(int argc, char *argv[]){
             currentFormat = (Matrix *)MATRIX_FORMATS[f];
             mBuffer = currentFormat ->cloneEmpty(currentFormat);
             
-            convertFromMM(mmMatrix ->data, mBuffer);
+            convertFromMM((DataMM*)mmMatrix ->data, mBuffer);
 
             logMsg(LOG_TAG_I, "Fine conversione %s\n",MATRIX_FILE_NAMES[i]);
 

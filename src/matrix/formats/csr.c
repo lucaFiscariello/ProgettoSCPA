@@ -78,7 +78,7 @@ int putCSR(Matrix *self, int r, int c, double value){
     * effectively canceling it from the matrix. 
     */
     // we refuse zero values since it's too complicated to handle them (its 2:23 AM I just want to go to sleep lol)
-    ON_ERROR_LOG_AND_RETURN(value == 0, -1, "Cannot put zero values in a CSR matrix format (position: %d, %d)", r, c);
+    ON_ERROR_LOG_AND_RETURN(value == 0, -1, "Cannot put zero values in a CSR matrix format (position: %d, %d)\n", r, c);
     
     if (r >= self ->rows){
         
