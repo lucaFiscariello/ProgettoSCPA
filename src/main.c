@@ -10,6 +10,7 @@
 #include "mediator/mediator.h"
 #include "random/rvgs.h"
 #include "random/rngs.h"
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -21,6 +22,12 @@
  * Matrix file names to use in the experiments as sparse matrices
  */
 const char *MATRIX_FILE_NAMES[] = {
+    
+    //"matrixFile/dc1.mtx",
+    //"matrixFile/cop20k_A.mtx",
+    //"matrixFile/webbase-1M.mtx",
+    //matrixFile/Cube_Coup_dt0.mtx,
+    
     
     "matrixFile/bcspwr01.mtx",
     "matrixFile/Trec5.mtx",
@@ -51,6 +58,7 @@ const char *MATRIX_FILE_NAMES[] = {
     "matrixFile/thermal2.mtx",
     "matrixFile/thermomech_TK.mtx",
     "matrixFile/webbase-1M.mtx"
+    
     // more matrix file names here ...
 };
 const int NUM_MATRIX_FILE_NAMES = sizeof(MATRIX_FILE_NAMES) / sizeof(void *); // sizeof su array sullo stack restituisce la memoria occupata dall'array in bytes. (NON FUNZIONA SU POINTERS!). Inoltre uso sizeof(void *) perché i puntatori sono tutti grandi uguale.
@@ -132,6 +140,27 @@ Matrix *craftUniformMultiVectorFromMatrix(Matrix *m, int k, double minVal, doubl
     return mv;
 }
 
+double getVarianceNotZeroRows(Matrix *self){
+    int* allNotZeroRowsNumber = calloc(self->rows, sizeof(int));
+
+    for(int i=0; i<self->numNonZero; i++){
+        allNotZeroRowsNumber[self->getNonZero(self,i)->row]++;
+    }
+
+    double mean=0,var=0;
+    for (int i = 0; i < self->rows; i++) {
+        mean += allNotZeroRowsNumber[i];
+    }
+
+    // Calcola la varianza degli elementi dell'array
+    for (int i = 0; i < self->rows; i++) {
+        var += pow(allNotZeroRowsNumber[i] - mean, 2);
+    }
+    var /= self->rows;
+    return var;
+
+
+}
 /**
     Esegue il prodotto matriciale prendendo a coppie le matrici da m1 e m2 in ordine, usando
     tutte le funzioni di prodotto passate in input, e
@@ -172,6 +201,7 @@ int doExperiments(
      * experiment[i, p] --> (m1[i], m2[i], products[p])
     */
     for (int i = 0; i < numM; i++){
+        double var = getVarianceNotZeroRows(m1[i]);
         for (int p = 0; p < numProducts; p++){
 
             // to do an experiment, we must cycle through all its trials
@@ -185,6 +215,12 @@ int doExperiments(
                 samples[curSampleIndex] -> m1SampleId = msid1[i];
                 samples[curSampleIndex] -> m2SampleId = msid2[i];
                 samples[curSampleIndex] -> trial = t;
+                DataEllpack *data =(DataEllpack *) m1[i]->data;
+                samples[curSampleIndex] ->paddingIndicator = (double)(m1[i]->numNonZero/m1[i]->rows)/data->colsSubMat;
+                samples[curSampleIndex] ->varNotZeroRows = var;
+
+                printf("%f\n",var);
+
 
                 // do the trial of this experiment and calculate its perfomance.
                 ON_ERROR_LOG_AND_RETURN(products[p](m1[i], m2[i], mrBuffer, samples[curSampleIndex]), -1, "Error while doing trial %d for experiment %d, %d, %d\n", t, i, i, p);
@@ -222,7 +258,9 @@ int printSamplesToCSV(int numSamples, Sample *samples[], char *filename){
     fprintf(csv, "format_mat1,");
     fprintf(csv,"numElements_mat2,");
     fprintf(csv,"numBytes_mat2,");
-    fprintf(csv,"name_mat2\n");
+    fprintf(csv,"name_mat2,");
+    fprintf(csv,"varNotZeroRows,");
+    fprintf(csv,"paddingIndicator\n");
     
     //Stampo un sample per ogni riga
     for(int i=0; i< numSamples; i++){
@@ -237,7 +275,9 @@ int printSamplesToCSV(int numSamples, Sample *samples[], char *filename){
         fprintf(csv,"%s,",samples[i]->m1SampleId->formatName);
         fprintf(csv,"%ld,",samples[i]->m2SampleId->numElements);
         fprintf(csv,"%ld,",samples[i]->m2SampleId->numBytes);
-        fprintf(csv,"%s\n",samples[i]->m2SampleId->name);
+        fprintf(csv,"%s,",samples[i]->m2SampleId->name);
+        fprintf(csv,"%lf,",samples[i]->varNotZeroRows);
+        fprintf(csv,"%lf\n",samples[i]->paddingIndicator);
 
 
     }
@@ -247,6 +287,8 @@ int printSamplesToCSV(int numSamples, Sample *samples[], char *filename){
     return 0;
 
 }
+
+
 
 /*************************************** MAIN ****************************************************/
 

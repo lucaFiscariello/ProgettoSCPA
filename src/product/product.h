@@ -69,6 +69,21 @@ typedef struct sample{
     */
     MatrixSampleID *m2SampleId;
 
+    /**
+     * Massimo numero di non zeri in una riga
+    */
+    double maxNotZeroRows;
+
+    /**
+     * Varianza dei non zeri nelle righe
+    */
+    double varNotZeroRows;
+
+    /**
+     * Rapporto tra numero di non Zeri per riga e il massimo numero di zeri per riga
+    */
+    double paddingIndicator;
+
 } Sample;
 
 /**

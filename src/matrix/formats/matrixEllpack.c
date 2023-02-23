@@ -162,6 +162,7 @@ long getSizeEllpack(Matrix *self){
     return sizeof(double) * data ->colsSubMat * data ->rowsSubMat + sizeof(int) * data ->colsSubMat * data ->rowsSubMat;
 }
 
+
 /**
  * Funzione per deallocare matrice in memoria
 */

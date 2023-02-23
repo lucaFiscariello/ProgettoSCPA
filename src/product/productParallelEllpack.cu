@@ -36,17 +36,21 @@ __global__ void gpuMatrixMultiVectorELL(int rowsA, int colsA, int colsMulti, con
     // that is computed by the thread
     double Csub = 0;
 
+    // Declaration of the shared memory array As used to
+    // store the sub-matrix of A
+     __shared__ double As[BD][BD];
+
+     // Declaration of the shared memory array Bs used to
+     // store the sub-matrix of B
+     __shared__ double Bs[BD][BD];
+
+    int pos;
+
     if(tx<colsA && ty<rowsA){
         for (int a = aBegin, b = bBegin;a <= aEnd;a += aStep, b += bStep) {
-            // Declaration of the shared memory array As used to
-            // store the sub-matrix of A
-            __shared__ double As[BD][BD];
+            
 
-            // Declaration of the shared memory array Bs used to
-            // store the sub-matrix of B
-            __shared__ double Bs[BD][BD];
-
-            int pos = a + colsA * ty + tx;
+            pos = a + colsA * ty + tx;
             if(pos<rowsA*colsA){
                 int posCols = b + colsMulti * A_cols[pos] + tx;
                 
@@ -54,11 +58,11 @@ __global__ void gpuMatrixMultiVectorELL(int rowsA, int colsA, int colsMulti, con
                 // to shared memory; each thread loads
                 // one element of each 
                 As[ty][tx] = A_values[pos];
-
                 if(posCols<colsMulti*rowsA)
                     Bs[ty][tx] = multiVect[posCols];
                 else
                     return;
+                
             }
             else 
                 return;
@@ -72,10 +76,8 @@ __global__ void gpuMatrixMultiVectorELL(int rowsA, int colsA, int colsMulti, con
             // Multiply the two matrices together;
             // each thread computes one element
             // of the block sub-matrix
-            
             if(tx>=colsMulti)
                 return;
-
             for (int k = 0; k < BD; k++) {
                 Csub +=  As[ty][k] * Bs[k][tx];
             }
@@ -93,7 +95,6 @@ __global__ void gpuMatrixMultiVectorELL(int rowsA, int colsA, int colsMulti, con
         int posC = colsMulti * BD * by + BD * bx+ colsMulti * ty + tx;
         if(posC<rowsA*colsMulti)
             y[posC] = Csub;
-
         
     }
 
