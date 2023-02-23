@@ -134,6 +134,9 @@ NotZeroElement* getNonZeroEllpack(Matrix *self, int numZero){
     for(int i =0; i < data->rowsSubMat;i++){
         for(int j=0; j< data->colsSubMat; j++){
 
+            if (data ->matValues[i][j] ==0){
+                break;
+            }
             //Escludo padding
             if(data->matValues[i][j]!=0){
               
