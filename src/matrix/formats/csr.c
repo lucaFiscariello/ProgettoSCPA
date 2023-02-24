@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 double getCSR(Matrix *self, int r, int c){
 
@@ -46,31 +47,32 @@ NotZeroElement *getNonZeroCSR(Matrix *self, int pos){
     return element;
 }
 
-void swap(void *e1, void *e2, size_t eSize){
-    
-    void *temp = calloc(1, eSize);
-    
-    memcpy(temp, e1, eSize);
-    memcpy(e1, e2, eSize);
-    memcpy(e2, temp, eSize);
 
-    free(temp);
-}
+/**
+ * Swap macro. Using a macro gains a lot of performance. (99% --> 59.53% of execution time)
+*/
+#define swap(a, b, t)\
+    do{\
+        t = a;\
+        a = b;\
+        b = t;\
+    }while(0)
 
-bool shiftRight(int *array, int n, int startPos, size_t eSize){
-    
-    bool hasShifted = false;
-    for (int i = startPos + 1; i < n; i ++){
-        hasShifted = true;
-        swap(array + startPos, array + i, eSize);
-    }   
-    return hasShifted;
-}
+#define shiftRight(array, n, startPos, eType, ret)\
+    do {\
+        ret = false;\
+        eType temp;\
+        for (int i = startPos + 1; i < n; i ++){\
+            ret = true;\
+            swap(((eType *)array)[startPos], ((eType *)array)[i], temp);\
+        }\
+    } while (0)
 
 int putCSR(Matrix *self, int r, int c, double value){
 
     CSRData *data = (CSRData *)self->data;
     int startColIndex, endColIndex, colsOfRow;
+    bool hasShifted;
 
     /**
     * TODO: Weakness disgusts me, handle zero values! >:(
@@ -122,10 +124,10 @@ int putCSR(Matrix *self, int r, int c, double value){
         self->cols = data ->valuesCapacity;
     }
     
-    // we could need to shift the columns of the next row to the right (not always)
-    bool hasShifted = shiftRight(data ->columns, data ->valuesCapacity, endColIndex, sizeof(int));
-    shiftRight(data ->values, data ->valuesCapacity, endColIndex, sizeof(double));
+    // we could need to shift the columns and values of the next row to the right (not always)
+    shiftRight(data ->columns, data ->valuesCapacity, endColIndex, int, hasShifted);
     if (hasShifted){
+        shiftRight(data ->values, data ->valuesCapacity, endColIndex, double, hasShifted);
         // if we actually shifted, we must adjust the firstColOfRowIndexes array
         for (int i = r + 1; i < data ->numCompressedRows - 1; i ++){
             data ->firstColOfRowIndexes[i] ++;

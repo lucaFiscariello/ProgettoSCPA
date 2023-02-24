@@ -34,6 +34,7 @@ void convertFromMM(DataMM *dataMM, Matrix *matrixTo){
     char* filename = dataMM ->filename;
     int curR = -1, curC = - 1;
     double curVal = NAN;
+    int progress, oldProgress;
 
     reset(fileFrom);
     ON_ERROR_LOG_AND_RETURN(seekdata(fileFrom, 0), 0, "Couldn't seek data\n");
@@ -53,6 +54,14 @@ void convertFromMM(DataMM *dataMM, Matrix *matrixTo){
         else if(mm_is_symmetric(dataMM ->typecode)&& curC != curR){
             matrixTo->put(matrixTo,curC,curR,curVal);
         }
+
+        progress = (line * 100 / numValueLines);
+        if (progress != oldProgress)
+        {
+            oldProgress = progress;
+            logMsg(LOG_TAG_D, "Read %d percent of nzes from file\n", progress);
+        }
+
 
     }
 
