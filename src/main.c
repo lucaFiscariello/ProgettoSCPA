@@ -29,35 +29,36 @@ const char *MATRIX_FILE_NAMES[] = {
     //matrixFile/Cube_Coup_dt0.mtx,
     
     
-    //"matrixFile/bcspwr01.mtx",
-    //"matrixFile/Trec5.mtx",
-    //"matrixFile/cage4.mtx",
-    //"matrixFile/bcspwr01.mtx",
+    "matrixFile/bcspwr01.mtx",
+    "matrixFile/Trec5.mtx",
+    "matrixFile/cage4.mtx",
+    "matrixFile/bcspwr01.mtx",
     "matrixFile/west2021.mtx",
     "matrixFile/olm1000.mtx",
-    "matrixFile/thermal1.mtx",
+    //"matrixFile/thermal1.mtx",
     "matrixFile/mac_econ_fwd500.mtx",
-    "matrixFile/cant.mtx",
-    "matrixFile/nlpkkt80.mtx",
+    //"matrixFile/cant.mtx",
+    //"matrixFile/nlpkkt80.mtx",
     "matrixFile/adder_dcop_32.mtx",
-    "matrixFile/af_1_k101.mtx",
+    //"matrixFile/af_1_k101.mtx",
     "matrixFile/af23560.mtx",
-    "matrixFile/amazon0302.mtx",
+    //"matrixFile/amazon0302.mtx",
     "matrixFile/bcsstk17.mtx",
     "matrixFile/cavity10.mtx",
-    "matrixFile/dc1.mtx",
+    //"matrixFile/dc1.mtx",
     "matrixFile/FEM_3D_thermal1.mtx",
     "matrixFile/lung2.mtx",
     "matrixFile/mcfe.mtx",
     "matrixFile/mhd4800a.mtx",
     "matrixFile/olafu.mtx",
-    "matrixFile/PR02R.mtx",
-    "matrixFile/raefsky2.mtx",
+    //"matrixFile/PR02R.mtx",
+    //"matrixFile/raefsky2.mtx",
     "matrixFile/rdist2.mtx",
-    "matrixFile/roadNet-PA.mtx",
-    "matrixFile/thermal2.mtx",
+    //"matrixFile/roadNet-PA.mtx",
+    //"matrixFile/thermal2.mtx",
     "matrixFile/thermomech_TK.mtx",
-    "matrixFile/webbase-1M.mtx"
+    //"matrixFile/webbase-1M.mtx"
+    
     
     // more matrix file names here ...
 };
@@ -100,7 +101,7 @@ int (*PRODUCTS[])(Matrix *, Matrix *, Matrix *, Sample *) = {
     //productMatrixMatrixSerial,
     //productMatrixMatrixParallelEllpack,
     //productEllpackMultivectorParallelCPU,
-    //productCsrMultivectorParallelCPU
+    productCsrMultivectorParallelCPU
     productCsrMultivectorParallelGPU
     // more product functions here ...
 };
