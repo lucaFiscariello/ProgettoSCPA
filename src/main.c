@@ -36,10 +36,10 @@ const char *MATRIX_FILE_NAMES[] = {
     "matrixFile/west2021.mtx",
     "matrixFile/olm1000.mtx",
     //"matrixFile/thermal1.mtx",
-    "matrixFile/mac_econ_fwd500.mtx",
+    //"matrixFile/mac_econ_fwd500.mtx",
     //"matrixFile/cant.mtx",
     //"matrixFile/nlpkkt80.mtx",
-    "matrixFile/adder_dcop_32.mtx",
+    //"matrixFile/adder_dcop_32.mtx",
     //"matrixFile/af_1_k101.mtx",
     "matrixFile/af23560.mtx",
     //"matrixFile/amazon0302.mtx",
@@ -47,7 +47,7 @@ const char *MATRIX_FILE_NAMES[] = {
     "matrixFile/cavity10.mtx",
     //"matrixFile/dc1.mtx",
     "matrixFile/FEM_3D_thermal1.mtx",
-    "matrixFile/lung2.mtx",
+    //"matrixFile/lung2.mtx",
     "matrixFile/mcfe.mtx",
     "matrixFile/mhd4800a.mtx",
     "matrixFile/olafu.mtx",
@@ -56,7 +56,7 @@ const char *MATRIX_FILE_NAMES[] = {
     "matrixFile/rdist2.mtx",
     //"matrixFile/roadNet-PA.mtx",
     //"matrixFile/thermal2.mtx",
-    "matrixFile/thermomech_TK.mtx",
+    //"matrixFile/thermomech_TK.mtx",
     //"matrixFile/webbase-1M.mtx"
     
     
@@ -102,7 +102,7 @@ int (*PRODUCTS[])(Matrix *, Matrix *, Matrix *, Sample *) = {
     //productMatrixMatrixParallelEllpack,
     //productEllpackMultivectorParallelCPU,
     productCsrMultivectorParallelCPU
-    productCsrMultivectorParallelGPU
+    //productCsrMultivectorParallelGPU
     // more product functions here ...
 };
 const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
@@ -112,7 +112,7 @@ const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
 /**
  * Number of trials to run for each experiment
 */
-const int TRIALS = 5;
+const int TRIALS = 1;
 
 /**
  * Seed da usare per la generazione dei numeri casuali
@@ -203,7 +203,7 @@ int doExperiments(
      * experiment[i, p] --> (m1[i], m2[i], products[p])
     */
     for (int i = 0; i < numM; i++){
-        double var = getVarianceNotZeroRows(m1[i]);
+        double var = 0;
         for (int p = 0; p < numProducts; p++){
 
             // to do an experiment, we must cycle through all its trials
