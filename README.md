@@ -8,3 +8,8 @@ chmod +x downloadMatrix.sh
 
 NB: Eseguire dalla directory root
 
+# How to build
+```
+$ make bin/debug --> builda una versione del progetto con informazioni di debug
+$ make bin/release --> builda cercando di ottimizzare le prestazioni
+```
