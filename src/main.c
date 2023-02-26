@@ -23,42 +23,38 @@
  */
 const char *MATRIX_FILE_NAMES[] = {
     
-    //"matrixFile/dc1.mtx",
-    //"matrixFile/cop20k_A.mtx",
-    //"matrixFile/webbase-1M.mtx",
-    //matrixFile/Cube_Coup_dt0.mtx,
-    
-    
-    "matrixFile/bcspwr01.mtx",
+    "matrixFile/dc1.mtx",
+    "matrixFile/cop20k_A.mtx",
+    "matrixFile/webbase-1M.mtx",
+    "matrixFile/Cube_Coup_dt0.mtx",
     "matrixFile/Trec5.mtx",
     "matrixFile/cage4.mtx",
     "matrixFile/bcspwr01.mtx",
     "matrixFile/west2021.mtx",
     "matrixFile/olm1000.mtx",
-    //"matrixFile/thermal1.mtx",
-    //"matrixFile/mac_econ_fwd500.mtx",
-    //"matrixFile/cant.mtx",
-    //"matrixFile/nlpkkt80.mtx",
-    //"matrixFile/adder_dcop_32.mtx",
-    //"matrixFile/af_1_k101.mtx",
+    "matrixFile/thermal1.mtx",
+    "matrixFile/mac_econ_fwd500.mtx",
+    "matrixFile/cant.mtx",
+    "matrixFile/nlpkkt80.mtx",
+    "matrixFile/adder_dcop_32.mtx",
+    "matrixFile/af_1_k101.mtx",
     "matrixFile/af23560.mtx",
-    //"matrixFile/amazon0302.mtx",
+    "matrixFile/amazon0302.mtx",
     "matrixFile/bcsstk17.mtx",
     "matrixFile/cavity10.mtx",
-    //"matrixFile/dc1.mtx",
+    "matrixFile/dc1.mtx",
     "matrixFile/FEM_3D_thermal1.mtx",
-    //"matrixFile/lung2.mtx",
+    "matrixFile/lung2.mtx",
     "matrixFile/mcfe.mtx",
     "matrixFile/mhd4800a.mtx",
     "matrixFile/olafu.mtx",
-    //"matrixFile/PR02R.mtx",
-    //"matrixFile/raefsky2.mtx",
+    "matrixFile/PR02R.mtx",
+    "matrixFile/raefsky2.mtx",
     "matrixFile/rdist2.mtx",
-    //"matrixFile/roadNet-PA.mtx",
-    //"matrixFile/thermal2.mtx",
-    //"matrixFile/thermomech_TK.mtx",
-    //"matrixFile/webbase-1M.mtx"
-    
+    "matrixFile/roadNet-PA.mtx",
+    "matrixFile/thermal2.mtx",
+    "matrixFile/thermomech_TK.mtx",
+    "matrixFile/webbase-1M.mtx"
     
     // more matrix file names here ...
 };
@@ -73,8 +69,8 @@ const int NUM_MATRIX_FILE_NAMES = sizeof(MATRIX_FILE_NAMES) / sizeof(void *); //
  * Dato che per ora non abbiamo un modo per farlo, per ora lasciamo solo ELLPACK.
 */
 const Matrix *MATRIX_FORMATS[] = {
-    //newMatrixEllpack(),
-    newMatrixCSR()
+    newMatrixEllpack(),
+    //newMatrixCSR()
 };
 const int NUM_MATRIX_FORMATS = sizeof(MATRIX_FORMATS) / sizeof(void *);
 
@@ -98,21 +94,20 @@ const int NUM_MV_WIDTHS = sizeof(MV_WIDTHS) / sizeof(int);
  * TODO: read product names from file and map them to the corresponding function
 */
 int (*PRODUCTS[])(Matrix *, Matrix *, Matrix *, Sample *) = {
-    //productMatrixMatrixSerial,
-    //productMatrixMatrixParallelEllpack,
-    //productEllpackMultivectorParallelCPU,
+    productMatrixMatrixSerial,
+    productEllpackMultivectorParallelCPU,
     productCsrMultivectorParallelCPU
+    
+    //productMatrixMatrixParallelEllpack,
     //productCsrMultivectorParallelGPU
     // more product functions here ...
 };
 const int NUM_PRODUCTS = sizeof(PRODUCTS) / sizeof(void *);
 
-// TODO: read following parameters from command line
-
 /**
  * Number of trials to run for each experiment
 */
-const int TRIALS = 1;
+const int TRIALS = 20;
 
 /**
  * Seed da usare per la generazione dei numeri casuali
@@ -203,7 +198,7 @@ int doExperiments(
      * experiment[i, p] --> (m1[i], m2[i], products[p])
     */
     for (int i = 0; i < numM; i++){
-        double var = 0;
+        double var = getVarianceNotZeroRows( m1[i]);
         for (int p = 0; p < numProducts; p++){
 
             // to do an experiment, we must cycle through all its trials

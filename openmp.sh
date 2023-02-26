@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-for (( j=6; j<32; j++ ));
+for (( j=0; j<48; j++ ));
 do
     export OMP_NUM_THREADS=$j
     ./bin/release

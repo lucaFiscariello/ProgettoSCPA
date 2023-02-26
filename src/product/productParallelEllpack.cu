@@ -31,21 +31,17 @@ __global__ void gpuMatrixMultiVectorELL(int rowsA, int colsA, int colsMulti, con
     int bBegin = BD* bx;
     int bStep  = BD* colsMulti;
 
-    // Csub is used to store the element of the block sub-matrix
-    // that is computed by the thread
+    // Csub è l'elemento della sottomatrice calcolato da un thread
     double Csub = 0;
 
-    // Declaration of the shared memory array As used to
-    // store the sub-matrix of A
+    
+    //Definizione della memoria condivisa. Ogni blocco di thread ha associato un blocco di memoria ocndivisa di BD*BD
      __shared__ double As[BD][BD];
-
-     // Declaration of the shared memory array Bs used to
-     // store the sub-matrix of B
      __shared__ double Bs[BD][BD];
 
     int pos;
 
-    if(tx<colsA && ty<rowsA){
+    if(tx<colsA && ty<rowsA && tx<colsMulti){
         for (int a = aBegin, b = bBegin;a <= aEnd;a += aStep, b += bStep) {
             
 
@@ -53,9 +49,7 @@ __global__ void gpuMatrixMultiVectorELL(int rowsA, int colsA, int colsMulti, con
             if(pos<rowsA*colsA){
                 int posCols = b + colsMulti * A_cols[pos] + tx;
                 
-                // Load the matrices from device memory
-                // to shared memory; each thread loads
-                // one element of each 
+               //Carico i dati in memoria condivisa escludendo il padding 
                 As[ty][tx] = A_values[pos];
                 if(posCols<colsMulti*rowsA)
                     Bs[ty][tx] = multiVect[posCols];
@@ -68,15 +62,11 @@ __global__ void gpuMatrixMultiVectorELL(int rowsA, int colsA, int colsMulti, con
 
             
             
-            // Synchronize to make sure the matrices are loaded
+            //Sincornizzo i threads per essere sicuro che tutti abbiano scritto in memoria condivisa
             __syncthreads();
 
 
-            // Multiply the two matrices together;
-            // each thread computes one element
-            // of the block sub-matrix
-            if(tx>=colsMulti)
-                return;
+            //Calcolo il prodotto
             for (int k = 0; k < BD; k++) {
                 Csub +=  As[ty][k] * Bs[k][tx];
             }
@@ -85,12 +75,11 @@ __global__ void gpuMatrixMultiVectorELL(int rowsA, int colsA, int colsMulti, con
         }
             
 
-        // Synchronize to make sure that the preceding
-        // computation is done before loading two new
-        // sub-matrices of A and B in the next iteration
+        // Sincornizzo dopo aver terminato la moltiplicazione, in attesa che tutti i thread abbiano completato i propri calcoli
         __syncthreads();
 
 
+        //Salvo risultato
         int posC = colsMulti * BD * by + BD * bx+ colsMulti * ty + tx;
         if(posC<rowsA*colsMulti)
             y[posC] = Csub;
